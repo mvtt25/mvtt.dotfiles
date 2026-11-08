@@ -1,3 +1,10 @@
 # Machine-local secrets: `chezmoi add` must never pick it up.
 .config/zsh/local.zsh
 
+# ~/.config/nvim becomes a link to the repo's NvChad config, but an existing
+# Neovim config (a directory, e.g. a LazyVim setup, or a link elsewhere) is never replaced.
+{{- $path := joinPath .chezmoi.destDir ".config/nvim" }}
+{{- $nvim := lstat $path }}
+{{- if and $nvim (or (ne $nvim.type "symlink") (ne (output "readlink" $path | trim) (joinPath .chezmoi.workingTree "nvim"))) }}
+.config/nvim
+{{- end }}
