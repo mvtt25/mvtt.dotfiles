@@ -91,6 +91,7 @@ in
     casks = [
       # The cask, not nixpkgs: its fixed path keeps the Accessibility permission across updates.
       "omniwm"
+      "ghostty" # bundles JetBrains Mono and Nerd Font symbols: no font casks needed
       "latest" # tells which installed apps have updates
       "orbstack"
     ];

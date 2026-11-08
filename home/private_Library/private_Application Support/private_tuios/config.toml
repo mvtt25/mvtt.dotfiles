@@ -1,0 +1,126 @@
+# TUIOS: sessions, workspaces, splits, persistence and the agents.
+#
+# Ghostty only draws it (~/.config/ghostty), OmniWM places the window
+# (~/.config/omniwm). Managed by chezmoi.
+#
+# Saving applies it at once (or prefix r). Every option: `tuios config browse`.
+# Every key: `tuios keybinds list`, `tuios keybinds cheatsheet`; clashes:
+# `tuios keybinds doctor`.
+
+[startup]
+tiled = true
+# Sessions live in a daemon: close Ghostty and the agents keep working,
+# reopen and you are back where you were (herdr's server, same idea).
+daemon = true
+
+[agents]
+enabled = true
+
+[appearance]
+# No theme: TUIOS paints with Ghostty's palette (Modest Dark), so the colors
+# change in one place only.
+theme = ""
+glyphs = "default"
+border_style = "hidden"
+frame_panels = true
+window_title_position = "top"
+window_title_style = "pill"
+
+[keybindings]
+leader_key = ""
+# Prefix Ctrl+B with tmux's keys after it. Ghostty also sends it on
+# Shift+Space (~/.config/ghostty/tuios-keys).
+preset = "tmux"
+
+[keybindings.global]
+# Ctrl+P is "previous" for the shell, nvim and fzf: the palette stays on
+# prefix : / P / Ctrl+P.
+command_palette = []
+# Alt is OmniWM's: the launcher stays on prefix a.
+launcher = []
+
+# Alt belongs to OmniWM (focus, workspaces) and to the shell (word jumps).
+# TUIOS gets the same moves through the prefix: arrows focus a pane, 1-9 pick
+# a workspace, w ! move a pane, ( ) step sessions.
+[keybindings.terminal_mode]
+terminal_focus_left = []
+terminal_focus_right = []
+terminal_focus_up = []
+terminal_focus_down = []
+terminal_next_window = []
+terminal_prev_window = []
+terminal_exit_mode = []
+
+[keybindings.window_management]
+next_session = []
+prev_session = []
+
+[keybindings.workspaces]
+switch_workspace_1 = []
+switch_workspace_2 = []
+switch_workspace_3 = []
+switch_workspace_4 = []
+switch_workspace_5 = []
+switch_workspace_6 = []
+switch_workspace_7 = []
+switch_workspace_8 = []
+switch_workspace_9 = []
+move_and_follow_1 = []
+move_and_follow_2 = []
+move_and_follow_3 = []
+move_and_follow_4 = []
+move_and_follow_5 = []
+move_and_follow_6 = []
+move_and_follow_7 = []
+move_and_follow_8 = []
+move_and_follow_9 = []
+send_to_workspace_1 = []
+send_to_workspace_2 = []
+send_to_workspace_3 = []
+send_to_workspace_4 = []
+send_to_workspace_5 = []
+send_to_workspace_6 = []
+send_to_workspace_7 = []
+send_to_workspace_8 = []
+send_to_workspace_9 = []
+
+# Shift is for typing (Shift+Space, then a capital, is text), so the
+# Shift+letter actions used most also sit on Ctrl+letter, as in herdr.
+[keybindings.prefix_mode]
+new_worktree = ["U", "ctrl+g"]
+prefix_command_palette = [":", "P", "ctrl+p"]
+prefix_close_session = ["X", "ctrl+x"]
+prefix_next_finished = ["O", "ctrl+o"]
+
+# ── Popups: a floating pane that closes when the program exits ─────────────
+# Same letters as the herdr popups, with Ctrl.
+
+[[keybindings.command]]
+key = "prefix+ctrl+f"
+type = "popup"
+description = "Projects: open a repo as a session"
+command = '''dir=$(find "$HOME/Developer" "$HOME/Dev-Env/git-repositories" -mindepth 2 -maxdepth 6 \( -name node_modules -o -name vendor -o -name .terraform \) -prune -o -name .git -print 2>/dev/null | sed 's|/\.git$||' | sort | fzf --prompt='project> ' --layout=reverse) && tuios switch-session --create --cwd "$dir" "$(basename "$dir")"'''
+
+[[keybindings.command]]
+key = "prefix+ctrl+l"
+type = "popup"
+description = "lazygit"
+command = "lazygit"
+
+[[keybindings.command]]
+key = "prefix+ctrl+y"
+type = "popup"
+description = "yazi, files open in nvim"
+command = "EDITOR=nvim yazi"
+
+[[keybindings.command]]
+key = "prefix+ctrl+s"
+type = "popup"
+description = "btop: CPU, RAM, disk, processes"
+command = "btop"
+
+[[keybindings.command]]
+key = "prefix+ctrl+d"
+type = "popup"
+description = "lazydocker"
+command = "lazydocker"

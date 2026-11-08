@@ -1,0 +1,74 @@
+# Ghostty: the window TUIOS draws in, and nothing else.
+#
+# TUIOS owns sessions, workspaces, splits, persistence and the agents
+# (~/Library/Application Support/tuios); OmniWM places the window
+# (../omniwm). No Ghostty tabs, no Ghostty splits. Managed by chezmoi.
+#
+# Every option: `ghostty +show-config --default --docs`. Reload: CMD+r.
+# Ghostty has no end-of-line comments: a comment sits on its own line.
+
+# ── TUIOS ────────────────────────────────────────────────────────────────────
+# Attach to the most recent session; the daemon starts on the first attach and
+# restores the saved ones. The daemon keeps the environment of the client that
+# started it, and Ghostty opened from the Dock has PATH=/usr/bin:/bin...:
+# without Nix (the popups' tools), ~/.local/bin (claude), Homebrew and
+# /usr/local/bin (OrbStack's docker), `tuios worktree new --agent claude` and
+# the popups would not find their programs. Through env, not `PATH=... tuios`:
+# on macOS Ghostty runs the command as `exec -l <command>`, and exec takes a
+# leading assignment for the program's name. start.sh runs `tuios attach`, or a
+# plain shell in OmniWM's quake terminal, which reads this config too.
+command = shell:/usr/bin/env PATH="/run/current-system/sw/bin:$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH" "$HOME/.config/ghostty/start.sh"
+
+# Processes live in the TUIOS daemon: closing the window loses nothing.
+confirm-close-surface = false
+
+# ── Look ─────────────────────────────────────────────────────────────────────
+# Modest Dark, Zed's palette (themes/modest-dark). TUIOS sets no theme of its
+# own and paints with these colors: the palette changes here only.
+theme = modest-dark
+
+# No font-family: Ghostty ships JetBrains Mono, real bold and italic, with the
+# Nerd Font symbols built in.
+font-size = 14
+adjust-cell-height = 15%
+
+background-opacity = 0.92
+background-blur = 20
+
+window-padding-x = 12
+window-padding-y = 8
+window-padding-balance = true
+
+# OmniWM lays the window out: no title bar.
+macos-titlebar-style = hidden
+
+mouse-hide-while-typing = true
+
+# A short trail behind the cursor when it jumps. Any custom shader keeps a render
+# loop running while the window is focused: a few percent of CPU. Comment it out
+# to save battery.
+custom-shader = shaders/cursor-trail.glsl
+
+# ── Keys ─────────────────────────────────────────────────────────────────────
+# Left Option is Alt (the shell's word jumps); right Option still types
+# @ # [ ] { } ~ on the Italian layout. OmniWM reads Option on its own,
+# before Ghostty.
+macos-option-as-alt = left
+
+# Ghostty's own keys are off: CMD+t, CMD+d, CMD+1..9 would manage Ghostty tabs
+# and splits around TUIOS, exactly the confusion to avoid. Only the macOS
+# essentials come back. Fullscreen is OmniWM's (alt-ctrl-shift-f).
+keybind = clear
+keybind = super+c=copy_to_clipboard
+keybind = super+v=paste_from_clipboard
+keybind = super+q=quit
+keybind = super+r=reload_config
+keybind = super+plus=increase_font_size:1
+keybind = super+minus=decrease_font_size:1
+keybind = super+0=reset_font_size
+
+# Claude Code: Shift+Enter is a new line in the prompt, not a send.
+keybind = shift+enter=text:\x1b\r
+
+# Shift+Space, TUIOS's prefix.
+config-file = tuios-keys

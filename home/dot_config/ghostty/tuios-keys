@@ -1,0 +1,88 @@
+# Shift+Space, TUIOS's prefix, typo-proof. Included from ./config.
+#
+# TUIOS's prefix is Ctrl+B (preset tmux) and Ctrl+B keeps working as it is.
+# Shift+Space is the comfortable one: Ghostty waits for the next key and sends
+# Ctrl+B followed by that key. A key missing from this table, such as a capital
+# or a shifted symbol typed with Shift still down ("ciao A"), is sent as typed:
+# the space, then the character. That is Ghostty's own rule for a sequence that
+# does not match, so nothing is lost while typing and no code is needed.
+#
+# Shift is for typing, so nothing here needs it: TUIOS's Shift+letter actions
+# used most also sit on Ctrl+letter (TUIOS's config.toml), as in herdr.
+#
+# \x02 is Ctrl+B. Ctrl+letter is sent as its control byte (\x07 is Ctrl+G).
+
+# Letters: the same key after the prefix.
+keybind = shift+space>a=text:\x02a
+keybind = shift+space>b=text:\x02b
+keybind = shift+space>c=text:\x02c
+keybind = shift+space>d=text:\x02d
+keybind = shift+space>e=text:\x02e
+keybind = shift+space>f=text:\x02f
+keybind = shift+space>g=text:\x02g
+keybind = shift+space>i=text:\x02i
+keybind = shift+space>j=text:\x02j
+keybind = shift+space>k=text:\x02k
+keybind = shift+space>l=text:\x02l
+keybind = shift+space>m=text:\x02m
+keybind = shift+space>n=text:\x02n
+keybind = shift+space>o=text:\x02o
+keybind = shift+space>p=text:\x02p
+keybind = shift+space>q=text:\x02q
+keybind = shift+space>r=text:\x02r
+keybind = shift+space>s=text:\x02s
+keybind = shift+space>t=text:\x02t
+keybind = shift+space>u=text:\x02u
+keybind = shift+space>v=text:\x02v
+keybind = shift+space>w=text:\x02w
+keybind = shift+space>x=text:\x02x
+keybind = shift+space>z=text:\x02z
+
+# The two keys the Italian layout hides behind Shift or Option.
+# h: help (TUIOS's ?). y: copy mode, "yank" (TUIOS's [).
+keybind = shift+space>h=text:\x02?
+keybind = shift+space>y=text:\x02[
+
+# Workspaces 1 to 9.
+keybind = shift+space>1=text:\x021
+keybind = shift+space>2=text:\x022
+keybind = shift+space>3=text:\x023
+keybind = shift+space>4=text:\x024
+keybind = shift+space>5=text:\x025
+keybind = shift+space>6=text:\x026
+keybind = shift+space>7=text:\x027
+keybind = shift+space>8=text:\x028
+keybind = shift+space>9=text:\x029
+
+# Splits: - top/bottom, \ side by side (the key left of 1). , renames the workspace.
+keybind = shift+space>-=text:\x02-
+keybind = shift+space>\=text:\x02\\
+keybind = shift+space>,=text:\x02,
+
+# Space cycles the layout, Esc leaves terminal mode for window mode.
+keybind = shift+space>space=text:\x02\x20
+keybind = shift+space>escape=text:\x02\x1b
+
+# Arrows focus a pane, Shift+arrows resize it.
+keybind = shift+space>left=text:\x02\x1b[D
+keybind = shift+space>right=text:\x02\x1b[C
+keybind = shift+space>up=text:\x02\x1b[A
+keybind = shift+space>down=text:\x02\x1b[B
+keybind = shift+space>shift+left=text:\x02\x1b[1;2D
+keybind = shift+space>shift+right=text:\x02\x1b[1;2C
+keybind = shift+space>shift+up=text:\x02\x1b[1;2A
+keybind = shift+space>shift+down=text:\x02\x1b[1;2B
+
+# Ctrl+letter: the actions and popups TUIOS's config.toml puts there.
+# g new worktree, p palette, x close session, o next finished agent turn,
+# t the tuios menu; f projects, l lazygit, y yazi, s btop, d lazydocker.
+keybind = shift+space>ctrl+g=text:\x02\x07
+keybind = shift+space>ctrl+p=text:\x02\x10
+keybind = shift+space>ctrl+x=text:\x02\x18
+keybind = shift+space>ctrl+o=text:\x02\x0f
+keybind = shift+space>ctrl+t=text:\x02\x14
+keybind = shift+space>ctrl+f=text:\x02\x06
+keybind = shift+space>ctrl+l=text:\x02\x0c
+keybind = shift+space>ctrl+y=text:\x02\x19
+keybind = shift+space>ctrl+s=text:\x02\x13
+keybind = shift+space>ctrl+d=text:\x02\x04
