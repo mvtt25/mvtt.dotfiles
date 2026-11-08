@@ -1,0 +1,3 @@
+# Machine-local secrets: `chezmoi add` must never pick it up.
+.config/zsh/local.zsh
+

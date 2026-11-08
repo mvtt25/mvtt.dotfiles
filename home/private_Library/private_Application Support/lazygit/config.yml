@@ -1,0 +1,16 @@
+# lazygit: the TUIOS popup on prefix ctrl+l. Managed by chezmoi.
+# Every option: https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
+gui:
+  nerdFontsVersion: "3"
+  # Modest Dark accents; everything else is ANSI, so Ghostty's palette already.
+  # The default selection is a solid blue bar: here it is Ghostty's selection grey.
+  theme:
+    activeBorderColor: ["#5ab0f6", bold]
+    inactiveBorderColor: ["#3f4451"]
+    searchingActiveBorderColor: ["#ebc275", bold]
+    optionsTextColor: ["#5ab0f6"]
+    selectedLineBgColor: ["#2c313a"]
+    inactiveViewSelectedLineBgColor: ["#1e242e"]
+    cherryPickedCommitFgColor: ["#4dbdcb"]
+    cherryPickedCommitBgColor: ["#2c313a"]
+    unstagedChangesColor: ["#ef5f6b"]

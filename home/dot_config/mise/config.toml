@@ -1,0 +1,11 @@
+# Global defaults; projects pin their own versions. Python is managed by uv.
+[tools]
+node = "24"
+pnpm = "10"
+ruby = "3"
+go = "latest"
+opentofu = "latest"
+
+[settings]
+# Precompiled Ruby: building it needs libyaml from Homebrew, which holds GUI apps only.
+ruby.compile = false

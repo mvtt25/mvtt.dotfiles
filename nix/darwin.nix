@@ -14,6 +14,18 @@ in
   system.stateVersion = 7;
 
   environment.systemPackages = import ./packages.nix pkgs;
+  # Stable paths for ~/.zshrc: these two plugins install outside share/zsh.
+  environment.pathsToLink = [ "/share/fzf-tab" "/share/zsh-syntax-highlighting" ];
+
+  # ~/.zshrc (chezmoi) runs compinit once and Starship draws the prompt.
+  programs.zsh = {
+    enableGlobalCompInit = false;
+    enableBashCompletion = false;
+    promptInit = "";
+    # Set here, not in ~/.zshrc: any shell reading only /etc/zshrc would otherwise
+    # rewrite ~/.zsh_history down to the default 2000 entries.
+    histSize = 100000;
+  };
 
   fonts.packages = [ pkgs.nerd-fonts.jetbrains-mono ];
 

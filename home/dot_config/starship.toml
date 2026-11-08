@@ -1,0 +1,68 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Kali style: ┌──(user㉿host)-[dir]-[branch] / └─$
+# On the right, the context commands act on (AWS profile, k8s cluster), the duration
+# of slow commands, the exit code and the jobs.
+format = '''
+[┌──\(](cyan)$username$hostname[\)-\[](cyan)$directory[\]](cyan)([-\[](cyan)$git_branch$git_status[\]](cyan))
+[└─](cyan)$character'''
+right_format = '$aws$kubernetes$cmd_duration$status$jobs'
+
+# No palette: the ANSI names are Ghostty's colors (Modest Dark), as in TUIOS.
+
+[username]
+show_always = true
+style_user = 'bold blue'
+style_root = 'bold red'
+format = '[$user]($style)'
+
+[hostname]
+ssh_only = false
+style = 'bold blue'
+format = '[@$hostname]($style)'
+
+[directory]
+style = 'bold white'
+truncation_symbol = '…/'
+format = '[$path]($style)'
+
+[git_branch]
+format = '$branch'
+
+[git_status]
+style = 'red'
+format = '([ $all_status$ahead_behind]($style))'
+
+[character]
+success_symbol = '[\$](bold blue)'
+error_symbol = '[\$](bold blue)'
+
+# The profile picked with `awsp`, and nothing without one: the (...) group goes when
+# $profile is empty (with just [default]'s region in ~/.aws/config, "aws:" would stay).
+[aws]
+style = 'yellow'
+format = '([ aws:$profile]($style))'
+
+# Off by default in Starship: the kubectl/kubectx/k3d context, only in Kubernetes
+# projects, when the current folder has a Helm chart, kustomize, helmfile, skaffold, a
+# Tiltfile or a manifests folder; not on every prompt.
+[kubernetes]
+disabled = false
+style = 'purple'
+format = '[  ⎈ $context]($style)'
+detect_files = ['Chart.yaml', 'kustomization.yaml', 'helmfile.yaml', 'skaffold.yaml', 'Tiltfile']
+detect_folders = ['k8s', 'kubernetes', 'helm', 'charts', 'manifests']
+
+[cmd_duration]
+style = 'bright-black'
+format = '[  $duration]($style)'
+
+[status]
+disabled = false
+style = 'bold red'
+format = ' $status [⨯]($style)'
+
+[jobs]
+number_threshold = 1
+style = 'bold yellow'
+format = ' $number [⚙]($style)'

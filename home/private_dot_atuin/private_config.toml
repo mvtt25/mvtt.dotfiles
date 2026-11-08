@@ -1,0 +1,10 @@
+# Atuin, on Ctrl+R (~/.zshrc). Managed by chezmoi; atuin keeps its data next to
+# this file, in ~/.atuin/data. Every option: https://docs.atuin.sh/configuration/config/
+enter_accept = true
+
+# Inline under the prompt, 20 lines at most, instead of taking the whole pane.
+# The default theme is ANSI colors: Ghostty's palette (Modest Dark).
+style = "compact"
+inline_height = 20
+show_help = false
+show_tabs = false

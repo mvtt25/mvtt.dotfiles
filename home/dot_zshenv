@@ -1,0 +1,9 @@
+typeset -U path
+# Installers such as Go's drop their dirs in /etc/paths.d, which only macOS's
+# path_helper reads and nix-darwin no longer runs: append them so Nix stays first.
+for f in /etc/paths.d/*(N.); do path+=(${(f)"$(<$f)"}); done
+# Appended, not prepended like ~/.cargo/env does: anything `cargo install`s must never shadow Nix or the system.
+path+=("$HOME/.cargo/bin")
+# zoxide's doctor misfires in tool shells that reuse a snapshot of an interactive
+# one (e.g. Claude Code's): they never read .zshrc, only this file.
+export _ZO_DOCTOR=0

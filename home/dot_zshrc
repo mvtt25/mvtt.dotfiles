@@ -1,0 +1,63 @@
+# Nix puts every tool on PATH in /etc/zshenv; this file is configuration only.
+# Everything lives here, not in .zprofile: TUIOS panes are non-login shells.
+
+# A terminal opened from inside Claude Code inherits this marker and silently
+# stops `claude` from saving transcripts.
+unset CLAUDE_CODE_CHILD_SESSION
+
+# After Nix so nothing here shadows it. Homebrew ships GUI apps and the few CLIs
+# nixpkgs can't build for macOS.
+export PNPM_HOME="$HOME/.local/share/pnpm"
+path+=(/opt/homebrew/bin /opt/homebrew/sbin "$HOME/.local/bin" "$PNPM_HOME")
+source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+
+# History size and file come from nix-darwin's /etc/zshrc; atuin owns search.
+setopt extended_history hist_ignore_space interactive_comments
+
+bindkey '^[[1;3C' forward-word '^[[1;3D' backward-word   # alt+arrows
+bindkey '^[[1;5C' forward-word '^[[1;5D' backward-word   # ctrl+arrows
+bindkey '^[[H' beginning-of-line '^[OH' beginning-of-line '^[[1~' beginning-of-line
+bindkey '^[[F' end-of-line '^[OF' end-of-line '^[[4~' end-of-line
+bindkey '^[[3~' delete-char
+
+# The only compinit: nix-darwin's global one is disabled.
+autoload -Uz compinit && compinit
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+zstyle ':completion:*' menu no
+
+# Plugins from Nix. fzf-tab goes after compinit, substring-search after highlighting.
+share=/run/current-system/sw/share
+source $share/fzf-tab/fzf-tab.plugin.zsh
+source $share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
+unset share
+bindkey '^[[A' history-substring-search-up '^[OA' history-substring-search-up
+bindkey '^[[B' history-substring-search-down '^[OB' history-substring-search-down
+
+# Colors by ANSI number, so bat and fzf paint with Ghostty's palette (Modest Dark)
+# like eza, yazi and atuin already do: the palette changes in Ghostty only.
+export BAT_THEME=ansi
+export FZF_DEFAULT_OPTS='--color=16,fg+:15,bg+:0,gutter:-1,hl:4,hl+:12,pointer:5,marker:2,prompt:6,info:8,border:8'
+zstyle ':fzf-tab:*' use-fzf-default-opts yes
+# Tab previews: a folder's contents on cd, a file's first lines on the commands that
+# take files (cat is bat, ~/.zshrc's alias).
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --icons=always --color=always $realpath'
+zstyle ':fzf-tab:complete:(nvim|bat|cat|less|cp|mv|rm):*' fzf-preview \
+  '[[ -d $realpath ]] && eza -1 --icons=always --color=always $realpath || bat --color=always --style=numbers --line-range=:100 $realpath'
+
+alias ls="eza --icons=always"
+alias l="ls -lah" la="ls -lAh" ll="ls -lh"
+alias cat="bat --paging=never"
+alias lsf='ls | fzf'
+
+source ~/.config/zsh/functions.zsh
+# Machine-local settings and secrets: never in the repo.
+[[ -f ~/.config/zsh/local.zsh ]] && source ~/.config/zsh/local.zsh
+
+eval "$(mise activate zsh)"
+eval "$(starship init zsh)"
+# Ctrl+R searches the whole history; the up arrow stays substring search.
+eval "$(atuin init zsh --disable-up-arrow)"
+# Must be last. --cmd cd makes `cd` jump by frecency and adds `cdi`.
+eval "$(zoxide init zsh --cmd cd)"
