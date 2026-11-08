@@ -44,7 +44,7 @@ on-click = '"$HOME/Library/Application Support/tuios/caffeinate.sh" toggle'
 # No theme: TUIOS paints with Ghostty's palette (Modest Dark), so the colors
 # change in one place only.
 theme = ""
-glyphs = "heavy"
+glyphs = "default"
 border_style = "glyphs"
 frame_panels = true
 window_title_position = "top"
@@ -233,9 +233,12 @@ follow = "cursor"
 [appearance.scrollbar]
 style = "track"
 
-# The rail's sections with their Nerd Font icons, as eza and yazi draw files.
+# The rail's sections with their Nerd Font icons, as eza and yazi draw files. No
+# files section: it filled the rail with ~'s dot folders, and yazi (prefix
+# ctrl+y) browses the files.
 [appearance.sidebar]
 header_style = "icon"
+sections = "sessions,terminals,agents"
 
 # Copy mode in Ghostty's colors (themes/modest-dark): its selection and cursor,
 # the matches in the palette's yellow. TUIOS's defaults come from another theme.
