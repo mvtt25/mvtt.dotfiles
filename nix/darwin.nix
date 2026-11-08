@@ -23,6 +23,44 @@ in
     reattach = true;
   };
 
+  system.defaults = {
+    NSGlobalDomain = {
+      AppleInterfaceStyle = "Dark";
+      AppleShowAllExtensions = true;
+      # Fast key repeat, for hjkl and Backspace; takes effect after logging out.
+      KeyRepeat = 2;
+      InitialKeyRepeat = 15;
+      # 24-hour time everywhere, the menu bar's clock too.
+      AppleICUForce24HourTime = true;
+    };
+    dock = {
+      tilesize = 50;
+      show-recents = false;
+    };
+    finder.ShowPathbar = true;
+    # chezmoi creates the folder (home/Screenshots/.keep).
+    screencapture.location = "~/Screenshots";
+
+    # The menu bar's right side: a digital clock with the weekday and the date, the
+    # battery with its percentage, Sound and Focus; no Wi-Fi.
+    menuExtraClock = {
+      IsAnalog = false;
+      ShowDayOfWeek = true;
+      ShowDate = 1; # always
+    };
+    controlcenter.BatteryShowPercentage = true;
+    CustomUserPreferences = {
+      "com.apple.controlcenter" = {
+        # Since macOS 26 these keys, not controlcenter.Sound & co. (18/24), decide which
+        # of Control Center's icons sit in the menu bar.
+        "NSStatusItem VisibleCC Sound" = true;
+        "NSStatusItem VisibleCC FocusModes" = true;
+        "NSStatusItem VisibleCC Battery" = true;
+        "NSStatusItem VisibleCC WiFi" = false;
+      };
+    };
+  };
+
   # GUI apps, plus CLI tools nixpkgs can't build for macOS; the rest come from
   # packages.nix, fonts from fonts.packages.
   homebrew = {
