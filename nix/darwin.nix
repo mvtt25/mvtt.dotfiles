@@ -27,6 +27,8 @@ in
     NSGlobalDomain = {
       AppleInterfaceStyle = "Dark";
       AppleShowAllExtensions = true;
+      # The menu bar never hides: OmniWM's bar draws in its middle (see CustomUserPreferences).
+      _HIHideMenuBar = false;
       # Fast key repeat, for hjkl and Backspace; takes effect after logging out.
       KeyRepeat = 2;
       InitialKeyRepeat = 15;
@@ -36,7 +38,11 @@ in
     dock = {
       tilesize = 50;
       show-recents = false;
+      # OmniWM tiles the whole screen: the Dock appears only at the bottom edge.
+      autohide = true;
     };
+    # "Displays have separate Spaces", macOS's default: OmniWM pauses without it.
+    spaces.spans-displays = false;
     finder.ShowPathbar = true;
     # chezmoi creates the folder (home/Screenshots/.keep).
     screencapture.location = "~/Screenshots";
@@ -50,7 +56,19 @@ in
     };
     controlcenter.BatteryShowPercentage = true;
     CustomUserPreferences = {
+      NSGlobalDomain = {
+        # See AutoHideMenuBarOption.
+        AppleMenuBarVisibleInFullscreen = true;
+        # Icons closer together, macOS's and the apps' (each reads it at launch):
+        # more room for OmniWM's bar in the middle.
+        NSStatusItemSpacing = 10;
+        NSStatusItemSelectionPadding = 8;
+      };
       "com.apple.controlcenter" = {
+        # Since macOS 26 the menu bar's "hide" setting (Always/On Desktop Only/In Full
+        # Screen Only/Never: 0-3) is Control Center's, and at login it rewrites
+        # _HIHideMenuBar from it: all three keys say "Never". Takes effect after logging out.
+        AutoHideMenuBarOption = 3;
         # Since macOS 26 these keys, not controlcenter.Sound & co. (18/24), decide which
         # of Control Center's icons sit in the menu bar.
         "NSStatusItem VisibleCC Sound" = true;
@@ -71,6 +89,8 @@ in
     # Not Obsidian: it is downloaded by hand. An app already installed
     # by hand can't be adopted by Homebrew (macOS App Management) and fails the whole switch.
     casks = [
+      # The cask, not nixpkgs: its fixed path keeps the Accessibility permission across updates.
+      "omniwm"
       "latest" # tells which installed apps have updates
       "orbstack"
     ];
