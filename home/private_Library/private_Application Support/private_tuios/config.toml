@@ -44,7 +44,7 @@ on-click = '"$HOME/Library/Application Support/tuios/caffeinate.sh" toggle'
 # No theme: TUIOS paints with Ghostty's palette (Modest Dark), so the colors
 # change in one place only.
 theme = ""
-glyphs = "default"
+glyphs = "heavy"
 border_style = "glyphs"
 frame_panels = true
 window_title_position = "top"
@@ -61,6 +61,14 @@ pane_overlays = true
 # Ghostty's palette; dialogs (pane_overlays) take the focused pane's border.
 border_focused_gradient = "blue purple"
 border_unfocused_color = "black"
+# The pane you are in stands out: the others fade, and so does what is behind a
+# popup (lazygit, yazi, projects).
+dim_unfocused = 20
+popup_dim = 30
+# The dock at the bottom, as tmux's status line: the top already holds the menu
+# bar and OmniWM's bar. One row, no rule.
+dockbar_position = "bottom"
+dock_compact = true
 window_button_position = "left"
 window_button_style = "dots"
 drop_preview = "outline"
@@ -224,6 +232,10 @@ follow = "cursor"
 
 [appearance.scrollbar]
 style = "track"
+
+# The rail's sections with their Nerd Font icons, as eza and yazi draw files.
+[appearance.sidebar]
+header_style = "icon"
 
 # Copy mode in Ghostty's colors (themes/modest-dark): its selection and cursor,
 # the matches in the palette's yellow. TUIOS's defaults come from another theme.
