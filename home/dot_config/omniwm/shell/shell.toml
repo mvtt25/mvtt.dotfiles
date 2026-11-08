@@ -1,0 +1,51 @@
+profile = "mvtt"
+
+[profiles]
+
+[profiles.default]
+center = ["active-window"]
+leading = ["apple-menu", "app-menu", "omniwm", "workspaces", "scratchpads"]
+trailing = ["notifications", "volume", "wifi", "battery-details", "control-center", "system-stats", "clock"]
+
+[profiles.mvtt]
+center = ["workspaces"]
+leading = []
+theme = "modest-dark"
+trailing = []
+
+[profiles.mvtt.widgets]
+
+[profiles.mvtt.widgets.battery-details]
+percent = "inside"
+
+[profiles.mvtt.widgets.workspaces]
+compact = false
+indicator = "pills"
+
+[profiles.mvtt.workspaceBar]
+backgroundOpacity = 0.0
+fullWidth = false
+fullWidthNotchMode = "off"
+height = 30.0
+inactiveIconOpacity = 1.0
+position = "overlappingMenuBar"
+reserveLayoutSpace = false
+showAccentHighlights = true
+showFloatingWindows = false
+showItemBackgrounds = false
+solidBlackBackground = false
+transparentBackground = false
+windowLevel = "floating"
+xOffset = -0.0
+
+[profiles.mvtt.workspaceBar.accentColor]
+alpha = 1.0
+blue = 0.8706
+green = 0.3843
+red = 0.7569
+
+[profiles.mvtt.workspaceBar.textColor]
+alpha = 1.0
+blue = 1.0
+green = 1.0
+red = 1.0
