@@ -16,6 +16,17 @@ daemon = true
 [agents]
 enabled = true
 
+# The dock's default right side, with caffeinate before the clock.
+[dock]
+right = ["notifications", "copy-help", "custom/caffeinate", "cpu", "ram", "clock", "session-controls"]
+
+# caffeinate.sh, next to this file: a coffee cup, full while the Mac stays awake
+# with the display off; a click starts or stops caffeinate.
+[dock.custom.caffeinate]
+refresh = "5s"
+command = '"$HOME/Library/Application Support/tuios/caffeinate.sh"'
+on-click = '"$HOME/Library/Application Support/tuios/caffeinate.sh" toggle'
+
 [appearance]
 # No theme: TUIOS paints with Ghostty's palette (Modest Dark), so the colors
 # change in one place only.
