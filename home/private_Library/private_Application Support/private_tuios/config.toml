@@ -163,6 +163,19 @@ type = "popup"
 description = "lazydocker"
 command = "lazydocker"
 
+# ── Worktrees: herdr's keys ──────────────────────────────────────────────────
+# Each worktree is a session: prefix ctrl+g makes one (new_worktree above),
+# prefix ctrl+a removes the session's worktree after asking. Uncommitted work
+# makes it refuse, and the branch stays.
+[[keybindings.command]]
+key = "prefix+ctrl+a"
+type = "popup"
+description = "Remove this session's worktree"
+command = '''
+printf '\n  remove the worktree of %s and close the session? [y/N] ' "$TUIOS_SESSION"
+read -r answer && [ "$answer" = y ] || exit 0
+tuios worktree rm "$TUIOS_SESSION" >/dev/null || { printf '\n  press enter to close '; read -r _; }'''
+
 # ── Music ────────────────────────────────────────────────────────────────────
 # spotatui in a session of its own, "music", made the first time: one session,
 # so one spotatui whichever session you come from. From music, back to the

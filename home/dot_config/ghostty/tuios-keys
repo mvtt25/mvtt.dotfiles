@@ -77,9 +77,10 @@ keybind = shift+space>shift+up=text:\x02\x1b[1;2A
 keybind = shift+space>shift+down=text:\x02\x1b[1;2B
 
 # Ctrl+letter: the actions and popups TUIOS's config.toml puts there.
-# g new worktree, p palette, x close session, o next finished agent turn,
-# t the tuios menu; f projects, l lazygit, y yazi, s btop, d lazydocker.
+# g new worktree, a remove it, p palette, x close session, o next finished agent
+# turn, t the tuios menu; f projects, l lazygit, y yazi, s btop, d lazydocker.
 keybind = shift+space>ctrl+g=text:\x02\x07
+keybind = shift+space>ctrl+a=text:\x02\x01
 keybind = shift+space>ctrl+p=text:\x02\x10
 keybind = shift+space>ctrl+x=text:\x02\x18
 keybind = shift+space>ctrl+o=text:\x02\x0f
