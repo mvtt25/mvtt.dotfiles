@@ -58,9 +58,11 @@ border_gradient_angle = 45
 pane_overlays = true
 # The borders as OmniWM draws its own: the focused pane from blue to purple, the
 # others in the palette's border grey. Slot names, not hex, so they follow
-# Ghostty's palette; dialogs (pane_overlays) take the focused pane's border.
+# Ghostty's palette. Dialogs and popups in the palette's blue: left alone they
+# take one colour of their own, TUIOS's green.
 border_focused_gradient = "blue purple"
 border_unfocused_color = "black"
+overlay_border_color = "blue"
 # The pane you are in stands out: the others fade, and so does what is behind a
 # popup (lazygit, yazi, projects).
 dim_unfocused = 20
