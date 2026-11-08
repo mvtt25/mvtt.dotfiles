@@ -1,0 +1,5 @@
+# Written once by chezmoi, then spotatui's own: its Settings screen rewrites it.
+behavior:
+  # Homebrew owns the binary: the self-updater must not replace it. Here, not
+  # in .zshrc: TUIOS starts spotatui (alt-m's music session) without a shell.
+  disable_auto_update: true

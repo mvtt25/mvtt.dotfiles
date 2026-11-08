@@ -98,6 +98,13 @@ in
     # Only what is declared here stays: a formula or cask installed by hand is removed at
     # the next switch, a cask with its app data. Declare it here to keep it.
     onActivation.cleanup = "zap";
+    taps = [
+      "LargeModGames/spotatui"
+    ];
+    # Spotify TUI (Premium only), alt-m in TUIOS. nixpkgs builds it for Linux only;
+    # the tap's binary has every source and cover art. Fully-qualified names are
+    # trusted by default.
+    brews = [ "LargeModGames/spotatui/spotatui" ];
     # Not Obsidian: it is downloaded by hand. An app already installed
     # by hand can't be adopted by Homebrew (macOS App Management) and fails the whole switch.
     casks = [

@@ -39,7 +39,8 @@ command_palette = []
 # Alt is OmniWM's: the launcher stays on prefix a.
 launcher = []
 
-# Alt belongs to OmniWM (focus, workspaces) and to the shell (word jumps).
+# Alt belongs to OmniWM (focus, workspaces) and to the shell (word jumps);
+# alt+m (music, at the end) is TUIOS's.
 # TUIOS gets the same moves through the prefix: arrows focus a pane, 1-9 pick
 # a workspace, w ! move a pane, ( ) step sessions.
 [keybindings.terminal_mode]
@@ -124,3 +125,23 @@ key = "prefix+ctrl+d"
 type = "popup"
 description = "lazydocker"
 command = "lazydocker"
+
+# ── Music ────────────────────────────────────────────────────────────────────
+# spotatui in a session of its own, "music", made the first time: one session,
+# so one spotatui whichever session you come from. From music, back to the
+# session before it. A new session opens with a shell: it holds the session
+# until spotatui's pane takes its place. Quitting spotatui closes the pane; the
+# next alt+m opens it again.
+[[keybindings.command]]
+key = "alt+m"
+type = "shell"
+description = "spotatui, in the music session, or back"
+command = '''
+if [ "$TUIOS_SESSION" = music ]; then exec tuios run-command -s music last_session; fi
+tuios list-windows -s music >/dev/null 2>&1 ||
+  { tuios new -d music --cwd "$HOME" && tuios set-window -s music --name init; } >/dev/null
+tuios get-window -s music spotify >/dev/null 2>&1 || {
+  tuios new-window -s music spotify -- /opt/homebrew/bin/spotatui
+  tuios close-window init -s music
+} >/dev/null 2>&1
+tuios switch-session -s "$TUIOS_SESSION" music >/dev/null'''
