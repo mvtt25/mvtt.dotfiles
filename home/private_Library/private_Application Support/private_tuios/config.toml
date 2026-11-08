@@ -45,10 +45,23 @@ on-click = '"$HOME/Library/Application Support/tuios/caffeinate.sh" toggle'
 # change in one place only.
 theme = ""
 glyphs = "default"
-border_style = "hidden"
+border_style = "glyphs"
 frame_panels = true
 window_title_position = "top"
-window_title_style = "pill"
+window_title_style = "plain"
+motion = "full"
+session_border = false
+zen_mode = "disabled"
+panel_padding = 2
+tiling_scheme = "spiral"
+border_gradient_angle = 45
+pane_overlays = true
+overlay_border_color = "#2700ed"
+window_button_position = "left"
+window_button_style = "dots"
+drop_preview = "outline"
+gap = 2
+window_title_align = "auto"
 
 [keybindings]
 leader_key = ""
@@ -195,3 +208,18 @@ tuios get-window -s music spotify >/dev/null 2>&1 || {
   tuios close-window init -s music
 } >/dev/null 2>&1
 tuios switch-session -s "$TUIOS_SESSION" music >/dev/null'''
+
+[screensaver]
+enabled = true
+effect = "errorcorrect"
+while_busy = true
+idle_minutes = 10
+
+[spotlight]
+follow = "cursor"
+
+[appearance.scrollbar]
+style = "track"
+
+[notifications]
+bell = "toast"
