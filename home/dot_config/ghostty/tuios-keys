@@ -20,6 +20,7 @@ keybind = shift+space>d=text:\x02d
 keybind = shift+space>e=text:\x02e
 keybind = shift+space>f=text:\x02f
 keybind = shift+space>g=text:\x02g
+keybind = shift+space>h=text:\x02h
 keybind = shift+space>i=text:\x02i
 keybind = shift+space>j=text:\x02j
 keybind = shift+space>k=text:\x02k
@@ -39,8 +40,8 @@ keybind = shift+space>x=text:\x02x
 keybind = shift+space>z=text:\x02z
 
 # The two keys the Italian layout hides behind Shift or Option.
-# h: help (TUIOS's ?). y: copy mode, "yank" (TUIOS's [).
-keybind = shift+space>h=text:\x02?
+# ': help, the key of TUIOS's ?. y: copy mode, "yank" (TUIOS's [).
+keybind = shift+space>'=text:\x02?
 keybind = shift+space>y=text:\x02[
 
 # Workspaces 1 to 9.
@@ -59,11 +60,13 @@ keybind = shift+space>-=text:\x02-
 keybind = shift+space>\=text:\x02\\
 keybind = shift+space>,=text:\x02,
 
-# Space cycles the layout, Esc leaves terminal mode for window mode.
+# Space cycles the layout, Tab goes back to the last workspace (OmniWM's alt+tab),
+# Esc leaves terminal mode for window mode.
 keybind = shift+space>space=text:\x02\x20
+keybind = shift+space>tab=text:\x02\x09
 keybind = shift+space>escape=text:\x02\x1b
 
-# Arrows focus a pane, Shift+arrows resize it.
+# Arrows focus a pane, as h j k l do; Shift+arrows resize it.
 keybind = shift+space>left=text:\x02\x1b[D
 keybind = shift+space>right=text:\x02\x1b[C
 keybind = shift+space>up=text:\x02\x1b[A

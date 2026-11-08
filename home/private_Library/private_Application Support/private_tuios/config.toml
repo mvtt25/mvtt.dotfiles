@@ -65,7 +65,7 @@ launcher = []
 
 # Alt belongs to OmniWM (focus, workspaces) and to the shell (word jumps);
 # alt+m (music, at the end) is TUIOS's.
-# TUIOS gets the same moves through the prefix: arrows focus a pane, 1-9 pick
+# TUIOS gets the same moves through the prefix: h j k l focus a pane, 1-9 pick
 # a workspace, w ! move a pane, ( ) step sessions.
 [keybindings.terminal_mode]
 terminal_focus_left = []
@@ -116,6 +116,19 @@ new_worktree = ["U", "ctrl+g"]
 prefix_command_palette = [":", "P", "ctrl+p"]
 prefix_close_session = ["X", "ctrl+x"]
 prefix_next_finished = ["O", "ctrl+o"]
+# OmniWM's letters, with the prefix instead of alt: h j k l focus a pane (the
+# arrows too), f zooms it, tab goes back to the last workspace. o finds a pane in
+# every session; h j k l move between panes, so o no longer needs to.
+terminal_focus_left = ["left", "h"]
+terminal_focus_down = ["down", "j"]
+terminal_focus_up = ["up", "k"]
+terminal_focus_right = ["right", "l"]
+prefix_fullscreen = ["z", "f"]
+last_workspace = ["tab"]
+choose_tree = ["o", "/"]
+prefix_next_window = []
+prefix_jump_notif = []
+prefix_keybinds = []
 
 # ── Popups: a floating pane that closes when the program exits ─────────────
 # Same letters as the herdr popups, with Ctrl.
