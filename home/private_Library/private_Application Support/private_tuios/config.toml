@@ -56,7 +56,11 @@ panel_padding = 2
 tiling_scheme = "spiral"
 border_gradient_angle = 45
 pane_overlays = true
-overlay_border_color = "#2700ed"
+# The borders as OmniWM draws its own: the focused pane from blue to purple, the
+# others in the palette's border grey. Slot names, not hex, so they follow
+# Ghostty's palette; dialogs (pane_overlays) take the focused pane's border.
+border_focused_gradient = "blue purple"
+border_unfocused_color = "black"
 window_button_position = "left"
 window_button_style = "dots"
 drop_preview = "outline"
@@ -220,6 +224,18 @@ follow = "cursor"
 
 [appearance.scrollbar]
 style = "track"
+
+# Copy mode in Ghostty's colors (themes/modest-dark): its selection and cursor,
+# the matches in the palette's yellow. TUIOS's defaults come from another theme.
+[appearance.selection]
+bg = "#2c313a"
+fg = "#d7dae0"
+cursor_bg = "#5ab0f6"
+cursor_fg = "#0f1219"
+match_bg = "#ebc275"
+match_fg = "#0f1219"
+search_bg = "#3f4451"
+search_fg = "#ebc275"
 
 [notifications]
 bell = "toast"
