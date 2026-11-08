@@ -1,0 +1,19 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/bin/sh
+{{- $nix := "" }}
+{{- range concat (glob (joinPath .chezmoi.workingTree "flake.*")) (glob (joinPath .chezmoi.workingTree "nix/*.nix")) }}
+{{-   $nix = print $nix (include .) }}
+{{- end }}
+# Runs again whenever the Nix config changes (hash {{ $nix | sha256sum }}).
+set -eu
+# Without Homebrew nix-darwin skips the casks yet exits 0, and chezmoi would never retry.
+[ -x /opt/homebrew/bin/brew ] || { echo "Install Homebrew first: https://brew.sh" >&2; exit 1; }
+cd {{ .chezmoi.workingTree | quote }}
+# Absolute paths: sudo must not resolve commands through the user's PATH.
+if [ -x /run/current-system/sw/bin/darwin-rebuild ]; then
+  sudo /run/current-system/sw/bin/darwin-rebuild switch --flake .#mac --impure
+else
+  # First run: nix-darwin as pinned in flake.lock.
+  sudo /nix/var/nix/profiles/default/bin/nix run --inputs-from . nix-darwin#darwin-rebuild -- switch --flake .#mac --impure
+fi
+{{ end -}}
