@@ -1,0 +1,62 @@
+# Managed by chezmoi. The identity never lives here: ~/.gitconfig-personal and
+# ~/.gitconfig-work hold user.name and user.email, picked by the repo's folder.
+[core]
+	editor = nvim
+
+# The first `git push` of a new branch sets its upstream: no `-u` needed.
+[push]
+	autoSetupRemote = true
+
+# Pull rebases your commits on top instead of merging; uncommitted changes are
+# stashed and restored around it, and branches stacked on the rebased one follow.
+[pull]
+	rebase = true
+[rebase]
+	autoStash = true
+	autoSquash = true
+	updateRefs = true
+# Branches deleted on the remote go away locally too.
+[fetch]
+	prune = true
+# A conflict resolved once is resolved the same way the next time.
+[rerere]
+	enabled = true
+# Smaller, more readable diffs; moved lines in their own color.
+[diff]
+	algorithm = histogram
+	colorMoved = default
+# Conflict markers show the common ancestor too.
+[merge]
+	conflictStyle = zdiff3
+# `git branch` lists the most recently used first.
+[branch]
+	sort = -committerdate
+
+[alias]
+	co = checkout
+	ramo = branch
+	statro = status
+
+# ~/Developer, created by chezmoi: personal (this repo too), work, and oss for other
+# people's repos (forks, experiments), where commits are yours, as personal.
+[includeIf "gitdir:~/Developer/personal/"]
+	path = ~/.gitconfig-personal
+[includeIf "gitdir:~/Developer/work/"]
+	path = ~/.gitconfig-work
+[includeIf "gitdir:~/Developer/oss/"]
+	path = ~/.gitconfig-personal
+# ~/Dev-Env, the tree this Mac keeps alongside ~/Developer.
+[includeIf "gitdir:~/Dev-Env/git-repositories/personal/"]
+	path = ~/.gitconfig-personal
+[includeIf "gitdir:~/Dev-Env/git-repositories/work/"]
+	path = ~/.gitconfig-work
+
+# gh as git's credential helper, through Nix's stable path. `gh auth setup-git` (which
+# `gh auth login` offers) writes gh's /nix/store path instead, broken by the next gh
+# update: `chezmoi apply` puts these lines back.
+[credential "https://github.com"]
+	helper =
+	helper = !/run/current-system/sw/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !/run/current-system/sw/bin/gh auth git-credential
