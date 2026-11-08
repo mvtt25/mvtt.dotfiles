@@ -35,6 +35,15 @@ in
     reattach = true;
   };
 
+  # macOS's firewall filters connections from the network, never localhost; signed apps
+  # are allowed (macOS's default), an unsigned one asks once. Stealth: no answer to ping
+  # or on closed ports, so a scan on public Wi-Fi sees little (the LAN still finds the
+  # Mac by ARP). To ping this Mac from another device, turn stealth off for a while.
+  networking.applicationFirewall = {
+    enable = true;
+    enableStealthMode = true;
+  };
+
   system.defaults = {
     NSGlobalDomain = {
       AppleInterfaceStyle = "Dark";
@@ -111,6 +120,9 @@ in
       # The cask, not nixpkgs: its fixed path keeps the Accessibility permission across updates.
       "omniwm"
       "ghostty" # bundles JetBrains Mono and Nerd Font symbols: no font casks needed
+      # Updates itself, and the cask knows it: brew never reinstalls it. Extensions,
+      # settings and bookmarks come back with Firefox Sync.
+      "firefox"
       "latest" # tells which installed apps have updates
       "orbstack"
     ];
