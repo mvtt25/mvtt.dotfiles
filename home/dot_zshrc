@@ -45,6 +45,9 @@ zstyle ':fzf-tab:*' use-fzf-default-opts yes
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --icons=always --color=always $realpath'
 zstyle ':fzf-tab:complete:(nvim|bat|cat|less|cp|mv|rm):*' fzf-preview \
   '[[ -d $realpath ]] && eza -1 --icons=always --color=always $realpath || bat --color=always --style=numbers --line-range=:100 $realpath'
+# cdi (zoxide) with the same folder preview. These replace all of fzf's options
+# there, so the colors above and zoxide's own layout come along.
+export _ZO_FZF_OPTS="$FZF_DEFAULT_OPTS --height=45% --layout=reverse --info=inline --border=rounded --cycle --keep-right --exit-0 --preview='eza -1 --icons=always --color=always {2..}' --preview-window=right,50%"
 
 alias ls="eza --icons=always"
 alias l="ls -lah" la="ls -lAh" ll="ls -lh"

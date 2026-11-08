@@ -43,6 +43,17 @@ ports() {
   esac
 }
 
+# y: yazi as a navigator. Quitting leaves the shell in the folder yazi was showing;
+# files open in nvim, as in TUIOS's yazi popup. Inside, z jumps with zoxide.
+y() {
+  local tmp cwd
+  tmp=$(mktemp -t yazi-cwd.XXXXXX)
+  EDITOR=nvim yazi "$@" --cwd-file="$tmp"
+  IFS= read -r -d '' cwd < "$tmp"
+  [[ -n $cwd && $cwd != "$PWD" ]] && builtin cd -- "$cwd"
+  rm -f -- "$tmp"
+}
+
 # AWS profiles: pick one with fzf and export it for this shell. `awsp --here` ties it to
 # the project instead (the repo's root, or this folder): the pair lives in
 # ~/.local/state/awsp/projects, outside every repo, so git never sees it. On every cd the
