@@ -16,9 +16,22 @@ daemon = true
 [agents]
 enabled = true
 
-# The dock's default right side, with caffeinate before the clock.
+# The daemon runs these with nobody attached: agents.sh, next to this file, tells
+# OmniWM's bar at once when an agent finishes or waits for you, and when you
+# settle it.
+[hooks]
+after-agent-state = ['"$HOME/Library/Application Support/tuios/agents.sh"']
+after-settle = ['"$HOME/Library/Application Support/tuios/agents.sh"']
+
+# The dock's default right side, with the agents' poll and caffeinate before the clock.
 [dock]
-right = ["notifications", "copy-help", "custom/caffeinate", "cpu", "ram", "clock", "session-controls"]
+right = ["notifications", "copy-help", "custom/agents", "custom/caffeinate", "cpu", "ram", "clock", "session-controls"]
+
+# The agents live in OmniWM's bar: this cell prints nothing and only polls
+# agents.sh, which catches what the hooks miss (an agent closed with its pane).
+[dock.custom.agents]
+refresh = "10s"
+command = '"$HOME/Library/Application Support/tuios/agents.sh"'
 
 # caffeinate.sh, next to this file: a coffee cup, full while the Mac stays awake
 # with the display off; a click starts or stops caffeinate.

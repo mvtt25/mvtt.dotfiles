@@ -8,7 +8,7 @@ leading = ["apple-menu", "app-menu", "omniwm", "workspaces", "scratchpads"]
 trailing = ["notifications", "volume", "wifi", "battery-details", "control-center", "system-stats", "clock"]
 
 [profiles.mvtt]
-center = ["workspaces"]
+center = ["workspaces", "agents"]
 leading = []
 theme = "modest-dark"
 trailing = []
