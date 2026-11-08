@@ -74,6 +74,9 @@ window_button_style = "dots"
 drop_preview = "outline"
 gap = 2
 window_title_align = "auto"
+border_focused_color_terminal = ""
+shared_borders = false
+hide_window_buttons = false
 
 [keybindings]
 leader_key = ""
@@ -229,9 +232,10 @@ idle_minutes = 10
 
 [spotlight]
 follow = "cursor"
+enabled = false
 
 [appearance.scrollbar]
-style = "track"
+style = "thin"
 
 # The rail's sections with their Nerd Font icons, as eza and yazi draw files. No
 # files section: it filled the rail with ~'s dot folders, and yazi (prefix
@@ -254,3 +258,6 @@ search_fg = "#ebc275"
 
 [notifications]
 bell = "toast"
+
+[appearance.sidebar.left]
+enabled = false
