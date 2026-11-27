@@ -1,0 +1,3 @@
+title = "TUIOS agents"
+icon = "person.2.fill"
+views = ["troupe", "help", "office"]

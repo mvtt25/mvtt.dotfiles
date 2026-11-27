@@ -1,0 +1,7 @@
+title = "Workspace apps"
+icon = "rectangle.3.group"
+views = ["strip"]
+capabilities = { provider = true, purpose = "Reads which apps sit in each workspace (omniwmctl subscribe workspace-bar), for the notch's hover previews." }
+
+[provider]
+command = ["spaces.py"]

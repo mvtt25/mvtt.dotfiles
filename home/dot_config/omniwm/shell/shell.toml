@@ -13,6 +13,23 @@ leading = []
 theme = "modest-dark"
 trailing = []
 
+[profiles.mvtt.island]
+displays = "notch"
+fullscreen = "hide"
+height = 420
+root = "notch"
+width = 720
+
+[[profiles.mvtt.island.components]]
+id = "crew"
+widget = "crew"
+enabled = true
+
+[[profiles.mvtt.island.components]]
+id = "spaces"
+widget = "spaces"
+enabled = true
+
 [profiles.mvtt.widgets]
 
 [profiles.mvtt.widgets.battery-details]
@@ -28,6 +45,7 @@ fullWidth = false
 fullWidthNotchMode = "off"
 height = 30.0
 inactiveIconOpacity = 1.0
+notchMode = "splitActiveRight"
 position = "overlappingMenuBar"
 reserveLayoutSpace = false
 showAccentHighlights = true

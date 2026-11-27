@@ -5,7 +5,7 @@ mode = "dark"
 tabRailAppIcons = false
 
 [borders]
-enabled = true
+enabled = false
 width = 2.0
 
 [borders.color]
@@ -115,7 +115,7 @@ hiddenBundleIDs = []
 rehideIntervalSeconds = 5.0
 
 [island]
-enabled = false
+enabled = true
 
 [keyboardModes]
 
@@ -200,12 +200,25 @@ mode = "macOS"
 [scratchpads.labels]
 
 [shellPermissions]
-programs = []
 widgets = []
 
 [shellPermissions.services]
-lyrics = false
+lyrics = true
 weather = false
+
+[[shellPermissions.programs]]
+command = ["bridge.py"]
+denied = false
+name = "crew"
+sha256 = "a270842f172bb7594327ed4b762b0c8d98e86e3debbbf2e492cb94d2a784ec4e"
+source = "/Users/matt/.config/omniwm/shell/widgets/crew"
+
+[[shellPermissions.programs]]
+command = ["spaces.py"]
+denied = false
+name = "spaces"
+sha256 = "3bd5ba01fc8ff6b21d8d430c95587081968c30fc47e9351aee154656234ddf45"
+source = "/Users/matt/.config/omniwm/shell/widgets/spaces"
 
 [statusBar]
 showAppNames = false
@@ -234,7 +247,7 @@ autoHideHideDelayMilliseconds = 0.0
 autoHideRevealDelayMilliseconds = 0.0
 backgroundOpacity = 0.05
 deduplicateAppIcons = true
-enabled = true
+enabled = false
 excludedBundleIDs = []
 fullWidth = false
 fullWidthNotchMode = "rightOfNotch"
@@ -683,7 +696,7 @@ binding = "Unassigned"
 id = "expelWindowFromColumn"
 
 [[hotkeys]]
-binding = "Unassigned"
+binding = "Option+O"
 id = "focusMonitorNext"
 
 [[hotkeys]]
@@ -1136,6 +1149,10 @@ id = "toggleShellWidget.hidden-bar"
 
 [[hotkeys]]
 binding = "Unassigned"
+id = "toggleShellWidget.notch"
+
+[[hotkeys]]
+binding = "Unassigned"
 id = "toggleShellWidget.system-stats"
 
 [[hotkeys]]
@@ -1144,11 +1161,11 @@ id = "toggleShellWidget.workspaces"
 
 [[workspaces]]
 id = "AD36F001-C57E-41A5-AC1D-DF5249D007F0"
-layoutType = "niri"
+layoutType = "dwindle"
 name = "1"
 
 [workspaces.monitorAssignment]
-type = "main"
+type = "secondary"
 
 [[workspaces]]
 id = "454CECD4-5E9D-4ED1-95D7-979D48817F5F"
@@ -1156,7 +1173,7 @@ layoutType = "niri"
 name = "2"
 
 [workspaces.monitorAssignment]
-type = "main"
+type = "secondary"
 
 [[workspaces]]
 id = "BEB842B5-E894-4791-9FD1-397C3CDD3538"
