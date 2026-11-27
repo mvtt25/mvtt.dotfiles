@@ -54,9 +54,12 @@ writes them) live here; agents, commands and other skills come from the plugins
 `chezmoi diff` shows the drift, `chezmoi re-add ~/.claude/settings.json` keeps it.
 This repo is public: read the diff before `re-add`, since tools add hooks with absolute paths.
 
-OmniWM does the same with `~/.config/omniwm/settings.toml` whenever its Settings window saves,
-and with `shell/shell.toml` from Styles & Widgets: `chezmoi re-add` keeps the change. The
-settings file is strict (a missing required key rejects all of it): edit values in place.
+OmniWM does the same with `shell/shell.toml` from Styles & Widgets: `chezmoi re-add` keeps the
+change. `~/.config/omniwm/settings.toml` is different: the repo holds a seed
+(`create_settings.toml`) that chezmoi writes only on a Mac without one, and from then on the
+file is OmniWM's. Its Settings window saves the machine's monitors and app rules there, which
+stay out of this repo: copy a change worth keeping (a hotkey, a gap) into the seed by hand.
+The file is strict (a missing required key rejects all of it): edit values in place.
 The bar's style is `mvtt` (`shell/mvtt`), a copy of OmniWM's Default to customize. For any
 style, Styles & Widgets offers the TUIOS agents widget (`shell/widgets/agents`, fed by TUIOS's
 hooks over OmniWM's IPC) and the Modest Dark palette (`shell/themes`). `shell/default` and the
