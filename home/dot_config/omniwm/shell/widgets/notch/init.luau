@@ -771,11 +771,14 @@ local function panelCard(key: string, w: number, h: number, action, body)
         hover = if action then "#FFFFFF1C" else nil, onClick = action, body }
 end
 
-local function cardTitle(w: number, symbol: string, title: string, chevron: boolean?)
+local function cardTitle(w: number, symbol: string, title: string, chevron: boolean?, trailing: any?)
     local row = { w = w, h = 16, gap = 6,
         ui.symbol{ name = symbol, size = 12, color = DIM },
         ui.text{ text = title, size = 13, weight = "semibold", color = TEXT },
         ui.box{ grow = 1 } }
+    if trailing then
+        row[#row + 1] = trailing
+    end
     if chevron then
         row[#row + 1] = ui.symbol{ name = "chevron.right", size = 10, weight = "semibold", color = FAINT }
     end
@@ -881,6 +884,21 @@ local function timerCard(ctx, w: number, h: number, pomo, now: number, info)
     return panelCard("timer-card", w, h, openTab("timer"), ui.column(body))
 end
 
+-- The Mac's sensors, averaged by OmniWM: "CPU 52° · GPU 48°", the thermometer warming with the CPU.
+local function temperatures(thermal)
+    if type(thermal) ~= "table" or type(thermal.cpu) ~= "number" then
+        return nil
+    end
+    local parts = { "CPU " .. tostring(math.round(thermal.cpu)) .. "°" }
+    if type(thermal.gpu) == "number" then
+        parts[#parts + 1] = "GPU " .. tostring(math.round(thermal.gpu)) .. "°"
+    end
+    local heat = if thermal.cpu >= 90 then RED elseif thermal.cpu >= 70 then ORANGE else GREEN
+    return ui.row{ key = "thermal", gap = 4,
+        ui.symbol{ name = "thermometer.medium", size = 11, color = heat },
+        ui.text{ text = table.concat(parts, " · "), size = 11, weight = "medium", color = DIM } }
+end
+
 local function systemCard(ctx, w: number, h: number, history: { number })
     local data = ctx.data
     local inner = w - 24
@@ -904,7 +922,7 @@ local function systemCard(ctx, w: number, h: number, history: { number })
     local graph = 46
     local spacer = math.max(0, h - 24 - 16 - (40 + 10 + 14 + 8 + graph))
     local body = cardBody(w, 0)
-    body[#body + 1] = cardTitle(inner, "gauge.with.dots.needle.67percent", "System")
+    body[#body + 1] = cardTitle(inner, "gauge.with.dots.needle.67percent", "System", nil, temperatures(data.thermal))
     body[#body + 1] = ui.box{ w = inner, h = spacer }
     body[#body + 1] = ui.row{ w = inner, h = 40,
         meter("cpu", data.cpu or 0, "CPU", ORANGE, "cpu"),
