@@ -35,6 +35,7 @@ local ORANGE = "#FF9F0A"
 local GREEN = "#30D158"
 local TOMATO = "#FF6B5A"
 local PURPLE = "#BF5AF2"
+local CYAN = "#64D2FF"
 
 local CREW = "crew" -- component instance id in shell.toml
 local SPACES = "spaces" -- the apps in each workspace, shown on hover
@@ -719,25 +720,30 @@ local function arc(value: number): string
         12 + 9.5 * math.sin(angle), 12 - 9.5 * math.cos(angle))
 end
 
-local function gauge(key: string, percent: number, size: number, color: string, symbol: string)
+-- A ring filled to `percent`, with the value in its middle.
+local function gauge(key: string, percent: number, size: number, color: string)
     local ring = { key = key, w = size, h = size,
-        ui.path{ w = size, h = size, viewBox = { 0, 0, 24, 24 }, d = RING, border = TRACK, borderWidth = 2.6 } }
+        ui.path{ w = size, h = size, viewBox = { 0, 0, 24, 24 }, d = RING, border = TRACK, borderWidth = 3 } }
     if percent > 0.5 then
         ring[#ring + 1] = ui.path{ w = size, h = size, viewBox = { 0, 0, 24, 24 }, d = arc(math.min(percent, 100) / 100),
-            border = color, borderWidth = 2.6, animate = "ease" }
+            border = color, borderWidth = 3, animate = "ease" }
     end
-    ring[#ring + 1] = ui.symbol{ name = symbol, size = size * 0.32, color = color }
+    ring[#ring + 1] = ui.text{ text = string.format("%d%%", math.round(percent)), size = 13, weight = "semibold",
+        color = TEXT }
     return ui.stack(ring)
 end
 
-local function sparkline(values: { number }, w: number, h: number, color: string)
+-- `top` is the value at the graph's top edge (100 unless given), so a quiet CPU still shows its shape.
+local function sparkline(values: { number }, w: number, h: number, color: string, top: number?)
+    local scale = 100 / (top or 100)
     if #values < 2 then
         return ui.box{ w = w, h = h }
     end
     local last = #values - 1
     local line = {}
     for index, value in values do
-        line[#line + 1] = string.format("%s%d %.1f", if index == 1 then "M" else "L", index - 1, 100 - value)
+        line[#line + 1] = string.format("%s%d %.1f", if index == 1 then "M" else "L", index - 1,
+            100 - math.min(100, value * scale))
     end
     local stroke = table.concat(line, " ")
     return ui.stack{ w = w, h = h,
@@ -823,7 +829,10 @@ local function nowCard(ctx, w: number, h: number)
     table.sort(upcoming, function(a, b) return a.start < b.start end)
     local first, second = upcoming[1], upcoming[2]
     if not first then
-        body[#body + 1] = ui.text{ text = "Nothing else today", size = 12, color = DIM }
+        body[#body + 1] = ui.stack{ key = "clear", w = inner, h = h - 12 - 16 - 6 - 12,
+            ui.column{ gap = 6,
+                ui.symbol{ name = "calendar.badge.checkmark", size = 22, color = FAINT },
+                ui.text{ text = "Nothing else today", size = 12, color = DIM } } }
         return panelCard("now-card", w, h, "calendar open", ui.column(body))
     end
     local ongoing = first.start <= now
@@ -861,15 +870,17 @@ local function timerCard(ctx, w: number, h: number, pomo, now: number, info)
     local running = pomo.phase ~= "idle"
     local body = cardBody(w, 6)
     body[#body + 1] = cardTitle(inner, "timer", "Timer", true)
-    body[#body + 1] = ui.row{ w = inner, h = 32,
+    local caption = if running then PHASES[pomo.phase] .. (if pomo.paused then " · paused" else "") else "Ready"
+    body[#body + 1] = ui.row{ w = inner, h = 32, gap = 8,
         ui.text{ text = if running then mmss(remaining(pomo, now)) else "--:--", size = 24, weight = "semibold",
             color = if running then phaseColor(pomo) else DIM, reserve = "00:00" },
+        ui.text{ text = caption, size = 11, weight = "medium", color = DIM },
         ui.box{ grow = 1 },
         button("home-pomodoro", if running and not pomo.paused then "pause.fill" else "play.fill",
             function(next) togglePomodoro(next.state, next.data.seconds) end, 12) }
-    local caption = if running then PHASES[pomo.phase] .. (if pomo.paused then " · paused" else "") else "Ready"
-    local agents = if info.prompt then text(info.who) .. " needs you"
-        elseif info.working > 0 then tostring(info.working) .. " working" else nil
+    -- "Needs you" first, so a long agent name is what gets cut.
+    local agents = if info.prompt then "Needs you · " .. text(info.who)
+        elseif info.working > 0 then tostring(info.working) .. " working" else "No agents at work"
     local line = { key = "home-agents", w = inner, h = 16, gap = 6, onClick = openTab("agents"), help = "Agents" }
     local used = 0
     if info.mounted and info.busy > 0 then
@@ -878,7 +889,7 @@ local function timerCard(ctx, w: number, h: number, pomo, now: number, info)
             props = crewProps(info) }
         used = troupeW + 6
     end
-    line[#line + 1] = ui.text{ text = caption .. (if agents then " · " .. agents else ""), size = 11,
+    line[#line + 1] = ui.text{ text = agents, size = 11, weight = if info.prompt then "medium" else nil,
         color = if info.prompt then YELLOW else DIM, maxWidth = inner - used }
     body[#body + 1] = ui.row(line)
     return panelCard("timer-card", w, h, openTab("timer"), ui.column(body))
@@ -902,39 +913,35 @@ end
 local function systemCard(ctx, w: number, h: number, history: { number })
     local data = ctx.data
     local inner = w - 24
-    local half = inner / 2
-    local function meter(key: string, value: number, label: string, color: string, symbol: string)
-        return ui.row{ key = key, w = half, gap = 8,
-            gauge(key .. "-ring", value, 40, color, symbol),
-            ui.column{ gap = 0, center = false,
-                ui.text{ text = string.format("%d%%", math.round(value)), size = 17, weight = "semibold", color = TEXT },
-                ui.text{ text = label, size = 10, color = DIM } } }
+    local dials = { { "cpu", data.cpu, "CPU", ORANGE }, { "gpu", data.gpu, "GPU", CYAN },
+        { "memory", data.memory, "Memory", PURPLE } }
+    local row = { w = inner, h = 76 }
+    for _, dial in dials do
+        if dial[2] then
+            row[#row + 1] = ui.column{ key = dial[1], gap = 6, grow = 1,
+                gauge(dial[1] .. "-ring", dial[2], 56, dial[4]),
+                ui.text{ text = dial[3], size = 10, weight = "medium", color = DIM } }
+        end
+    end
+    local peak = 0
+    for _, value in history do
+        peak = math.max(peak, value)
     end
     local memory = data.system and data.system.memory
-    local details = {}
-    if data.gpu then
-        details[#details + 1] = "GPU " .. tostring(math.round(data.gpu)) .. "%"
-    end
-    if data.battery then
-        details[#details + 1] = "Battery " .. tostring(data.battery) .. "%"
-            .. (if data.charging == true then " ⚡" else "")
-    end
-    local graph = 46
-    local spacer = math.max(0, h - 24 - 16 - (40 + 10 + 14 + 8 + graph))
+    local graph = h - 24 - 16 - 14 - 76 - 14 - 10 - 14
     local body = cardBody(w, 0)
     body[#body + 1] = cardTitle(inner, "gauge.with.dots.needle.67percent", "System", nil, temperatures(data.thermal))
-    body[#body + 1] = ui.box{ w = inner, h = spacer }
-    body[#body + 1] = ui.row{ w = inner, h = 40,
-        meter("cpu", data.cpu or 0, "CPU", ORANGE, "cpu"),
-        meter("memory", data.memory or 0, "Memory", PURPLE, "memorychip") }
+    body[#body + 1] = ui.box{ w = inner, h = 14 }
+    body[#body + 1] = ui.row(row)
+    body[#body + 1] = ui.box{ w = inner, h = 14 }
+    body[#body + 1] = sparkline(history, inner, graph, ORANGE, math.max(20, peak * 1.25))
     body[#body + 1] = ui.box{ w = inner, h = 10 }
     body[#body + 1] = ui.row{ w = inner, h = 14,
-        ui.text{ text = table.concat(details, " · "), size = 11, color = DIM },
+        ui.text{ text = if data.battery then "Battery " .. tostring(data.battery) .. "%"
+            .. (if data.charging == true then " ⚡" else "") else "", size = 11, color = DIM },
         ui.box{ grow = 1 },
-        ui.text{ text = if memory then ctx.format.bytes(memory.used, "memory") .. " / "
+        ui.text{ text = if memory then ctx.format.bytes(memory.used, "memory") .. " of "
             .. ctx.format.bytes(memory.total, "memory") else "", size = 11, color = DIM } }
-    body[#body + 1] = ui.box{ w = inner, h = 8 }
-    body[#body + 1] = sparkline(history, inner, graph, PURPLE)
     return panelCard("system-card", w, h, nil, ui.column(body))
 end
 
