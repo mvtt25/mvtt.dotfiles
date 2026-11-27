@@ -45,7 +45,7 @@ local PAD = 10 -- wing padding
 local PANEL_WIDTH = 700 -- as wide as Notchy's panel
 local PEEK_WIDTH = 460 -- the hover, with the workspace strip
 local HOME_H = 240
-local OFFICE_H = 210 -- the Agents tab: the crew component's pixel office (170) and its details strip (40)
+local OFFICE_H = 226 -- the Agents tab: the crew component's pixel office (170) and its details strip (56)
 local MUSIC_COVER, MUSIC_H = 150, 164
 local ALERT_WIDTH = 440
 local HELP_H = 56
@@ -200,7 +200,7 @@ local function pomodoro(state)
     if type(saved) == "table" and DURATIONS[saved.phase] or (type(saved) == "table" and saved.phase == "idle") then
         fresh = { phase = saved.phase, count = tonumber(saved.count) or 0, auto = saved.auto ~= false,
             endsAt = tonumber(saved.endsAt), left = tonumber(saved.left), paused = saved.paused == true,
-            stoppedAt = tonumber(saved.stoppedAt) }
+            stoppedAt = tonumber(saved.stoppedAt), day = saved.day, today = tonumber(saved.today) }
     end
     state.pomo = fresh
     return fresh
@@ -291,6 +291,11 @@ local function tick(ctx, working: number)
     local pomo = pomodoro(state)
     local now = ctx.data.seconds
     if pomo.phase ~= "idle" and not pomo.paused and pomo.endsAt and now >= pomo.endsAt then
+        if pomo.phase == "focus" then
+            local day = ctx.format.date(now, "yyyy-MM-dd")
+            pomo.today = (if pomo.day == day then pomo.today or 0 else 0) + 1
+            pomo.day = day
+        end
         advance(state, now, working)
         flash(state, "pomodoro")
     end
@@ -869,7 +874,9 @@ local function timerCard(ctx, w: number, h: number, pomo, now: number, info)
     local inner = w - 24
     local running = pomo.phase ~= "idle"
     local body = cardBody(w, 6)
-    body[#body + 1] = cardTitle(inner, "timer", "Timer", true)
+    local done = if pomo.day == ctx.format.date(now, "yyyy-MM-dd") then pomo.today or 0 else 0
+    body[#body + 1] = cardTitle(inner, "timer", "Timer", true, if done > 0
+        then ui.text{ text = tostring(done) .. " focus today", size = 11, weight = "medium", color = DIM } else nil)
     local caption = if running then PHASES[pomo.phase] .. (if pomo.paused then " · paused" else "") else "Ready"
     body[#body + 1] = ui.row{ w = inner, h = 32, gap = 8,
         ui.text{ text = if running then mmss(remaining(pomo, now)) else "--:--", size = 24, weight = "semibold",
@@ -913,8 +920,10 @@ end
 local function systemCard(ctx, w: number, h: number, history: { number })
     local data = ctx.data
     local inner = w - 24
+    local memory = data.system and data.system.memory
     local dials = { { "cpu", data.cpu, "CPU", ORANGE }, { "gpu", data.gpu, "GPU", CYAN },
-        { "memory", data.memory, "Memory", PURPLE } }
+        { "memory", data.memory, if memory then string.format("Memory · %d/%d GB", math.round(memory.used / 2 ^ 30),
+            math.round(memory.total / 2 ^ 30)) else "Memory", PURPLE } }
     local row = { w = inner, h = 76 }
     for _, dial in dials do
         if dial[2] then
@@ -927,7 +936,6 @@ local function systemCard(ctx, w: number, h: number, history: { number })
     for _, value in history do
         peak = math.max(peak, value)
     end
-    local memory = data.system and data.system.memory
     local graph = h - 24 - 16 - 14 - 76 - 14 - 10 - 14
     local body = cardBody(w, 0)
     body[#body + 1] = cardTitle(inner, "gauge.with.dots.needle.67percent", "System", nil, temperatures(data.thermal))
@@ -936,12 +944,19 @@ local function systemCard(ctx, w: number, h: number, history: { number })
     body[#body + 1] = ui.box{ w = inner, h = 14 }
     body[#body + 1] = sparkline(history, inner, graph, ORANGE, math.max(20, peak * 1.25))
     body[#body + 1] = ui.box{ w = inner, h = 10 }
-    body[#body + 1] = ui.row{ w = inner, h = 14,
-        ui.text{ text = if data.battery then "Battery " .. tostring(data.battery) .. "%"
-            .. (if data.charging == true then " ⚡" else "") else "", size = 11, color = DIM },
+    local network = data.network
+    local function speed(bytes: number): string
+        return ctx.format.bytes(bytes, "file") .. "/s"
+    end
+    body[#body + 1] = ui.row{ w = inner, h = 14, gap = 4,
+        ui.symbol{ name = "arrow.down", size = 9, weight = "semibold", color = DIM },
+        ui.text{ text = speed(network and network.down or 0), size = 11, color = DIM },
+        ui.box{ w = 6 },
+        ui.symbol{ name = "arrow.up", size = 9, weight = "semibold", color = DIM },
+        ui.text{ text = speed(network and network.up or 0), size = 11, color = DIM },
         ui.box{ grow = 1 },
-        ui.text{ text = if memory then ctx.format.bytes(memory.used, "memory") .. " of "
-            .. ctx.format.bytes(memory.total, "memory") else "", size = 11, color = DIM } }
+        ui.text{ text = if data.battery then "Battery " .. tostring(data.battery) .. "%"
+            .. (if data.charging == true then " ⚡" else "") else "", size = 11, color = DIM } }
     return panelCard("system-card", w, h, nil, ui.column(body))
 end
 

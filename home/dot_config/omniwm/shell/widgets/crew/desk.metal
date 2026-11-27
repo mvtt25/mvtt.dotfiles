@@ -6,7 +6,8 @@
 // (empty chair, monitor asleep).
 // values.y: phase offset in seconds, so seats don't move in step.
 // values.z: 1 for Claude (terracotta), 0 for other harnesses (grey).
-// values.w: 1 the desk's left end, 2 its right end, 3 both (a desk of one seat), 0 a middle seat.
+// values.w: 1 the desk's left end, 2 its right end, 3 both (a desk of one seat), 0 a middle seat;
+// plus 4 × its agent's subagents, who scurry under the desk (two drawn at most).
 
 constant int RAISED = -1;
 
@@ -35,7 +36,8 @@ bool critter(int x, int y, int leftArm, int rightArm, bool eyes) {
 float4 shade(float2 uv, constant OmniShader& shader) {
     int state = int(shader.values.x + 0.5);
     float t = shader.time + shader.values.y;
-    int ends = int(shader.values.w + 0.5);
+    int packed = int(shader.values.w + 0.5);
+    int ends = packed & 3, helpers = min(packed >> 2, 2);
     bool leftEnd = (ends & 1) != 0, rightEnd = (ends & 2) != 0;
     int x = int(min(floor(uv.x * 22.0), 21.0));
     int y = int(min(floor(uv.y * 22.0), 21.0));
@@ -81,6 +83,17 @@ float4 shade(float2 uv, constant OmniShader& shader) {
 
     // Keyboard and mouse on the desk, dark against the white top.
     if (y == 11 && ((x >= 4 && x <= 10) || x == 12)) return float4(hex(0x4A505E), 1.0);
+
+    // Its subagents under the desk: 5 × 3 critters with two eyes, trotting in place.
+    if (state != 3 && y >= 19) {
+        for (int k = 0; k < helpers; k++) {
+            int hx = x - (5 + 7 * k), hy = y - 19;
+            int stride = (int(floor(t * 5.0)) + k) & 1;
+            bool lit = (hy == 0 && hx >= 1 && hx <= 3) || (hy == 1 && (hx == 0 || hx == 2 || hx == 4))
+                || (hy == 2 && (stride == 1 ? (hx == 1 || hx == 3) : (hx == 0 || hx == 4)));
+            if (lit) return float4(shader.values.z > 0.5 ? hex(0xF0A080) : hex(0xDADAE2), 1.0);
+        }
+    }
 
     // The white desk: top, a drawer unit per seat (shaded at the bottom), legs at its ends.
     if (y == 12) return float4(hex(0xF5F5F3), 1.0);

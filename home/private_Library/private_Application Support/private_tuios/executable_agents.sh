@@ -19,9 +19,11 @@ fi
 /opt/homebrew/bin/omniwmctl shell trigger notch update ${value:+"$value"} >/dev/null 2>&1 || :
 # Each agent, for the notch's avatars and its "needs your help" card: pane id, session,
 # name, state, harness, what blocks it, since when (ns), whether it finished unread,
+# its project folder, your last request, how many subagents it runs,
 # and what it is doing (or asking, while it waits for you).
 crew=$(printf '%s' "$list" | /usr/bin/jq -c '[.agents[:8][] | {i: .window_id, x: .session, n: .name,
   s: .state, h: .harness_id, b: .blocked_by, t: .agent_state_at, u: (.finished_unread == true),
+  d: ((.cwd // "") | split("/") | last), p: ((.meta.prompt // "") | .[0:120]), k: (.subagents // 0),
   m: ((if .state == "needs_input" then (.message // "") else "" end) as $ask
       | if $ask != "" then $ask else (.program_status[0].msg // .message // "") end | .[0:90])}]' 2>/dev/null)
 /opt/homebrew/bin/omniwmctl shell trigger notch agents "${crew:-[]}" >/dev/null 2>&1 || :

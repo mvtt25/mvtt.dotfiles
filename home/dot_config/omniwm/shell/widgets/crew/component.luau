@@ -23,7 +23,7 @@ local GROUND = 58 -- the floor line things stand on
 -- middle, of up to SEATS seats each (desk.metal draws one seat; more fit side by side).
 local DESKS_FROM, DESKS_TO, SEAT_W, DESK_H, SEATS = 36, 83, 22, 22, 2 -- DESKS_TO from the right (lamp - 4)
 local DESK_SLOTS = { 2, 1, 3 } -- in pane order, agents sit at the middle desk, then the left, then the right, in turn
-local DETAILS_H, OPEN_W = 40, 64 --the strip under the room with the clicked agent, and its Open button
+local DETAILS_H, OPEN_W = 56, 64 -- the strip under the room with the clicked agent, and its Open button
 local POUFS = 3
 local AT_DESK = { working = 0, needs_input = 1, errored = 2 } -- desk.metal's states; 3 is away
 local MOODS = { working = 0, needs_input = 1, errored = 2 }
@@ -237,7 +237,8 @@ local function office(ctx)
             -- A free seat is drawn like an agent's away one: empty chair, monitor asleep.
             local desk = ui.shader{ key = "desk-" .. slot .. "-" .. seat, source = DESK, w = SEAT_W * PIX,
                 h = DESK_H * PIX, fps = 12, align = "topLeading", dx = x, dy = (GROUND - DESK_H) * PIX,
-                values = if agent then { station.state, phase(agent.i), if agent.h == "claude-code" then 1 else 0, ends }
+                values = if agent then { station.state, phase(agent.i), if agent.h == "claude-code" then 1 else 0,
+                    ends + 4 * (if station.state ~= 3 then math.min(tonumber(agent.k) or 0, 2) else 0) }
                     else { 3, slot, 0, ends } }
             scene[#scene + 1] = if agent then pickable(desk, agent) else desk
             if agent and station.state ~= 3 then
@@ -261,21 +262,32 @@ local function office(ctx)
             focus = agent
         end
     end
-    -- Under the room: the clicked agent (who, where, since when, what it does) and Open, which
-    -- shows its pane in TUIOS through the open.sh provider.
+    -- Under the room: the clicked agent (who, where, since when; its project and your last
+    -- request; what it does now) and Open, which shows its pane in TUIOS through open.sh.
     local strip = { key = "details", w = width, h = DETAILS_H, gap = 10, pad = 10 }
     if focus then
         local where = if AT_DESK[focus.s] ~= nil then "at the desk"
             elseif focus == coffee then "on a coffee break" else "resting in the lounge"
+        local helpers = tonumber(focus.k) or 0
+        if helpers > 0 then
+            where ..= " · " .. tostring(helpers) .. (if helpers == 1 then " subagent" else " subagents")
+        end
         local textWidth = width - 2 * 10 - 10 - OPEN_W
         local nameWidth = math.min(textWidth / 2, (ctx.format.measure(name(focus), { size = 12, weight = "semibold" })))
         local failure = ctx.state.officeError
         local note = if failure then failure else text(focus.m)
+        local asked = text(focus.d)
+        if text(focus.p) ~= "" then
+            asked ..= (if asked ~= "" then " · " else "") .. "You asked: " .. focus.p
+        end
         local lines = { gap = 2, center = false, w = textWidth,
             ui.row{ gap = 6,
                 ui.text{ text = name(focus), size = 12, weight = "semibold", color = TEXT, maxWidth = nameWidth },
                 ui.text{ text = status(ctx, focus) .. " · " .. where, size = 10, color = DIM,
                     maxWidth = textWidth - nameWidth - 6 } } }
+        if asked ~= "" then
+            lines[#lines + 1] = ui.text{ text = asked, size = 10, color = DIM, maxWidth = textWidth }
+        end
         if note ~= "" then
             lines[#lines + 1] = ui.text{ text = note, size = 10, color = if failure then RED else FAINT,
                 maxWidth = textWidth }
