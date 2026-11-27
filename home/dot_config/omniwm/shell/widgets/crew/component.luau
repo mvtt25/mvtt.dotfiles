@@ -23,7 +23,7 @@ local GROUND = 58 -- the floor line things stand on
 -- middle, of up to SEATS seats each (desk.metal draws one seat; more fit side by side).
 local DESKS_FROM, DESKS_TO, SEAT_W, DESK_H, SEATS = 36, 83, 22, 22, 2 -- DESKS_TO from the right (lamp - 4)
 local DESK_SLOTS = { 2, 1, 3 } -- in pane order, agents sit at the middle desk, then the left, then the right, in turn
-local DETAILS_H, OPEN_W = 40, 70 -- the strip under the room with the clicked agent, and its Open button
+local DETAILS_H, OPEN_W = 40, 64 --the strip under the room with the clicked agent, and its Open button
 local POUFS = 3
 local AT_DESK = { working = 0, needs_input = 1, errored = 2 } -- desk.metal's states; 3 is away
 local MOODS = { working = 0, needs_input = 1, errored = 2 }
@@ -282,7 +282,7 @@ local function office(ctx)
         end
         strip[#strip + 1] = ui.column(lines)
         strip[#strip + 1] = ui.box{ grow = 1 }
-        strip[#strip + 1] = ui.row{ key = "open", w = OPEN_W, h = 24, gap = 4, radius = 12, fill = "#FFFFFF1A",
+        strip[#strip + 1] = ui.stack{ key = "open", w = OPEN_W, h = 24, radius = 12, fill = "#FFFFFF1A",
             hover = "#FFFFFF33", pressScale = 0.95, help = "Show this pane in TUIOS",
             onClick = function(next)
                 local _, err = omniwm.provider.send("open", { session = text(focus.x), pane = focus.i }, nil,
@@ -291,8 +291,9 @@ local function office(ctx)
                     end)
                 next.state.officeError = err
             end,
-            ui.symbol{ name = "arrow.up.forward.app", size = 10, color = TEXT },
-            ui.text{ text = "Open", size = 11, weight = "semibold", color = TEXT } }
+            ui.row{ gap = 3,
+                ui.text{ text = "Open", size = 11, weight = "semibold", color = TEXT },
+                ui.symbol{ name = "arrow.up.right", size = 9, color = TEXT } } }
     elseif #agents > 0 then
         strip[#strip + 1] = ui.text{ key = "hint", text = "Click a Claude for details", size = 10, color = FAINT }
     end
