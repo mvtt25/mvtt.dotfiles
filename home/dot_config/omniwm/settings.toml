@@ -224,7 +224,7 @@ source = "/Users/matt/.config/omniwm/shell/widgets/spaces"
 command = ["open.sh"]
 denied = false
 name = "crew"
-sha256 = "d81ef6a7d416e12dbd6dc1244a30994617b0d29411e780693b7a72aca72b6bb0"
+sha256 = "3d7c1a41909d41a90feb2a43c17bdfe116f97ac8fe3978ad4b4aa47c544eb3ca"
 source = "/Users/matt/.config/omniwm/shell/widgets/crew"
 
 [statusBar]

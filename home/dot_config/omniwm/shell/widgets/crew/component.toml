@@ -1,7 +1,7 @@
 title = "TUIOS agents"
 icon = "person.2.fill"
-views = ["troupe", "help", "office"]
-capabilities = { provider = true, purpose = "Opens an agent's pane in TUIOS when you press Open in the office" }
+views = ["troupe", "help", "office", "launch"]
+capabilities = { provider = true, purpose = "Opens an agent's pane in TUIOS when you press Open in the office, and Activity Monitor from the System card" }
 
 [provider]
 command = ["open.sh"]

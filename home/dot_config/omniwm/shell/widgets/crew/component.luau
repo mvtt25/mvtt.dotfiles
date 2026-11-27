@@ -319,6 +319,17 @@ local function office(ctx)
     return ui.column{ key = "office-view", w = width, h = height + DETAILS_H, gap = 0, ui.stack(scene), ui.row(strip) }
 end
 
+-- "launch": a clear button the root lays over one of its cards to open an app (props.bundle,
+-- a bundle id) through open.sh, since the root itself can't start programs.
+local function launch(ctx)
+    local props = if ctx.view and type(ctx.view.props) == "table" then ctx.view.props else {}
+    local bundle = text(props.bundle)
+    return ui.stack{ key = "launch", w = ctx.view.w or 100, h = ctx.view.h or 100, radius = 16, hover = "#FFFFFF0D",
+        pressScale = 0.99, onClick = function()
+            omniwm.provider.send("app", { bundle = bundle })
+        end }
+end
+
 return {
-    views = { troupe = troupe, help = help, office = office },
+    views = { troupe = troupe, help = help, office = office, launch = launch },
 }

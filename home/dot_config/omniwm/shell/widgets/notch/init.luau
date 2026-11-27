@@ -917,29 +917,6 @@ local function temperatures(thermal)
         ui.text{ text = table.concat(parts, " · "), size = 11, weight = "medium", color = DIM } }
 end
 
--- The System card opens Activity Monitor. OmniWM opens only files you chose, so the first click
--- asks for the app (Applications ▸ Utilities ▸ Activity Monitor) and the store keeps the choice.
-local function openMonitor()
-    local ready = omniwm.store.status.state == "ready"
-    local token = if ready then omniwm.store.get("monitorApp") else nil
-    local app = if type(token) == "string" then omniwm.resources.restore(token) else nil
-    if app then
-        omniwm.open(app)
-        return
-    end
-    omniwm.pick({ files = true }, function(result)
-        local picked = result.ok and result.items and result.items[1]
-        if not picked then
-            return
-        end
-        omniwm.open(picked)
-        local saved = omniwm.resources.persist(picked, function() end)
-        if saved and ready then
-            omniwm.store.set("monitorApp", saved)
-        end
-    end)
-end
-
 local function systemCard(ctx, w: number, h: number, history: { number })
     local data = ctx.data
     local inner = w - 24
@@ -980,7 +957,7 @@ local function systemCard(ctx, w: number, h: number, history: { number })
         ui.box{ grow = 1 },
         ui.text{ text = if data.battery then "Battery " .. tostring(data.battery) .. "%"
             .. (if data.charging == true then " ⚡" else "") else "", size = 11, color = DIM } }
-    return panelCard("system-card", w, h, function() openMonitor() end, ui.column(body))
+    return panelCard("system-card", w, h, nil, ui.column(body))
 end
 
 local function homeTab(ctx, inner: number, info, pomo, now: number, history: { number })
@@ -990,7 +967,12 @@ local function homeTab(ctx, inner: number, info, pomo, now: number, history: { n
         ui.column{ key = "left", w = column, h = HOME_H, gap = 10,
             nowCard(ctx, column, nowH),
             timerCard(ctx, column, HOME_H - 10 - nowH, pomo, now, info) },
-        systemCard(ctx, inner - column - 10, HOME_H, history) }, HOME_H
+        -- A click on System opens Activity Monitor: the root can't start apps, so a clear button of
+        -- the crew component lies over the card and its open.sh provider does it.
+        ui.stack{ key = "system", w = inner - column - 10, h = HOME_H,
+            systemCard(ctx, inner - column - 10, HOME_H, history),
+            ui.component{ key = "system-launch", id = CREW, view = "launch", w = inner - column - 10, h = HOME_H,
+                props = { bundle = "com.apple.ActivityMonitor" } } } }, HOME_H
 end
 
 -- Music: cover | track, seek, transport and volume | synced lyrics --------------------

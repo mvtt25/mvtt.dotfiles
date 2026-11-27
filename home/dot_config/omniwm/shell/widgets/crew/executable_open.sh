@@ -1,7 +1,8 @@
 #!/bin/sh
-# Crew's provider: the office's Open button. For each ["action", id, "open", {session, pane}]
-# from OmniWM it shows that TUIOS session in the attached client, focuses the agent's pane
-# there, brings Ghostty forward, and answers ["result", id, ok, error].
+# Crew's provider. ["action", id, "open", {session, pane}] (the office's Open button) shows
+# that TUIOS session in the attached client, focuses the agent's pane there and brings
+# Ghostty forward; ["action", id, "app", {bundle}] (the launch view) opens a Mac app by
+# bundle id. Each gets ["result", id, ok, error].
 TUIOS=/run/current-system/sw/bin/tuios
 JQ=/usr/bin/jq
 OMNIWMCTL=/opt/homebrew/bin/omniwmctl
@@ -13,9 +14,19 @@ reply() {
 while IFS= read -r frame; do
     id=$(printf '%s' "$frame" | $JQ -c 'if .[0] == "action" then .[1] else empty end' 2>/dev/null)
     [ -n "$id" ] || continue
+    name=$(printf '%s' "$frame" | $JQ -r '.[2]')
+    if [ "$name" = "app" ]; then
+        bundle=$(printf '%s' "$frame" | $JQ -r '.[3].bundle // empty')
+        case "$bundle" in
+            '' | *[!A-Za-z0-9.-]*) reply "$id" false '"app needs a bundle id"' ;;
+            *) if /usr/bin/open -b "$bundle" 2>/dev/null; then reply "$id" true null
+               else reply "$id" false '"could not open that app"'; fi ;;
+        esac
+        continue
+    fi
     session=$(printf '%s' "$frame" | $JQ -r '.[3].session // empty')
     pane=$(printf '%s' "$frame" | $JQ -r '.[3].pane // empty')
-    if [ "$(printf '%s' "$frame" | $JQ -r '.[2]')" != "open" ] || [ -z "$session" ] || [ -z "$pane" ]; then
+    if [ "$name" != "open" ] || [ -z "$session" ] || [ -z "$pane" ]; then
         reply "$id" false '"open needs a session and a pane"'
         continue
     fi
