@@ -22,6 +22,17 @@ enabled = true
 [hooks]
 after-agent-state = ['"$HOME/Library/Application Support/tuios/agents.sh"']
 after-settle = ['"$HOME/Library/Application Support/tuios/agents.sh"']
+# A repository that keeps its CLAUDE.md or .claude/ out of git has none in a new
+# worktree: link the main checkout's, so skills and granted permissions are
+# shared. With .claude/ in git, only its ignored settings.local.json is linked.
+# Skipped when the worktree already has one. A link that git would not ignore
+# (".claude/" matches directories, not links) goes in .git/info/exclude.
+# The same for the gitignored .env files (root and nested, as in a monorepo):
+# linked, so a key changed in the main checkout reaches every worktree.
+after-new-worktree = [
+  'for f in CLAUDE.md .claude .claude/settings.local.json; do [ -e "$TUIOS_WORKTREE_PATH/$f" ] || [ ! -e "$TUIOS_WORKTREE_REPO_ROOT/$f" ] || { ln -s "$TUIOS_WORKTREE_REPO_ROOT/$f" "$TUIOS_WORKTREE_PATH/$f" && { git -C "$TUIOS_WORKTREE_PATH" check-ignore -q "$f" || echo "/$f" >> "$(git -C "$TUIOS_WORKTREE_PATH" rev-parse --path-format=absolute --git-path info/exclude)"; }; }; done',
+  'cd "$TUIOS_WORKTREE_REPO_ROOT" && git ls-files -o -i --exclude-standard --directory | grep -E "(^|/)\.env[^/]*$" | while IFS= read -r f; do [ -e "$TUIOS_WORKTREE_PATH/$f" ] || { mkdir -p "$TUIOS_WORKTREE_PATH/$(dirname "$f")" && ln -s "$TUIOS_WORKTREE_REPO_ROOT/$f" "$TUIOS_WORKTREE_PATH/$f" && { git -C "$TUIOS_WORKTREE_PATH" check-ignore -q "$f" || echo "/$f" >> "$(git -C "$TUIOS_WORKTREE_PATH" rev-parse --path-format=absolute --git-path info/exclude)"; }; }; done',
+]
 
 # The dock's default right side, with the agents' poll and caffeinate before the clock.
 [dock]
@@ -167,7 +178,7 @@ prefix_keybinds = []
 key = "prefix+ctrl+f"
 type = "popup"
 description = "Projects: open a repo as a session"
-command = '''dir=$(find "$HOME/Developer" "$HOME/Dev-Env/git-repositories" -mindepth 2 -maxdepth 6 \( -name node_modules -o -name vendor -o -name .terraform \) -prune -o -name .git -print 2>/dev/null | sed 's|/\.git$||' | sort | fzf --prompt='project> ' --layout=reverse) && tuios switch-session --create --cwd "$dir" "$(basename "$dir")"'''
+command = '''dir=$({ find "$HOME/Developer" "$HOME/Dev-Env/git-repositories" -mindepth 2 -maxdepth 6 \( -name node_modules -o -name vendor -o -name .terraform \) -prune -o -name .git -print 2>/dev/null | sed 's|/\.git$||'; find "$HOME/Developer/docs" -mindepth 1 -maxdepth 1 -type d 2>/dev/null; } | sort -u | fzf --prompt='project> ' --layout=reverse) && tuios switch-session --create --cwd "$dir" "$(basename "$dir")"'''
 
 [[keybindings.command]]
 key = "prefix+ctrl+l"
@@ -263,3 +274,14 @@ bell = "toast"
 
 [appearance.sidebar.left]
 enabled = false
+
+# No key toggles tiling: turned off by accident, the splits (\ and -) stop
+# working. `tuios set-layout --tiling true` turns it back on.
+[keybindings.layout]
+toggle_tiling = []
+
+[keybindings.window_prefix]
+window_prefix_tiling = []
+
+[keybindings.tuios_prefix]
+prefix_toggle_tiling = []
