@@ -917,6 +917,29 @@ local function temperatures(thermal)
         ui.text{ text = table.concat(parts, " · "), size = 11, weight = "medium", color = DIM } }
 end
 
+-- The System card opens Activity Monitor. OmniWM opens only files you chose, so the first click
+-- asks for the app (Applications ▸ Utilities ▸ Activity Monitor) and the store keeps the choice.
+local function openMonitor()
+    local ready = omniwm.store.status.state == "ready"
+    local token = if ready then omniwm.store.get("monitorApp") else nil
+    local app = if type(token) == "string" then omniwm.resources.restore(token) else nil
+    if app then
+        omniwm.open(app)
+        return
+    end
+    omniwm.pick({ files = true }, function(result)
+        local picked = result.ok and result.items and result.items[1]
+        if not picked then
+            return
+        end
+        omniwm.open(picked)
+        local saved = omniwm.resources.persist(picked, function() end)
+        if saved and ready then
+            omniwm.store.set("monitorApp", saved)
+        end
+    end)
+end
+
 local function systemCard(ctx, w: number, h: number, history: { number })
     local data = ctx.data
     local inner = w - 24
@@ -938,7 +961,7 @@ local function systemCard(ctx, w: number, h: number, history: { number })
     end
     local graph = h - 24 - 16 - 14 - 76 - 14 - 10 - 14
     local body = cardBody(w, 0)
-    body[#body + 1] = cardTitle(inner, "gauge.with.dots.needle.67percent", "System", nil, temperatures(data.thermal))
+    body[#body + 1] = cardTitle(inner, "gauge.with.dots.needle.67percent", "System", true, temperatures(data.thermal))
     body[#body + 1] = ui.box{ w = inner, h = 14 }
     body[#body + 1] = ui.row(row)
     body[#body + 1] = ui.box{ w = inner, h = 14 }
@@ -957,7 +980,7 @@ local function systemCard(ctx, w: number, h: number, history: { number })
         ui.box{ grow = 1 },
         ui.text{ text = if data.battery then "Battery " .. tostring(data.battery) .. "%"
             .. (if data.charging == true then " ⚡" else "") else "", size = 11, color = DIM } }
-    return panelCard("system-card", w, h, nil, ui.column(body))
+    return panelCard("system-card", w, h, function() openMonitor() end, ui.column(body))
 end
 
 local function homeTab(ctx, inner: number, info, pomo, now: number, history: { number })
