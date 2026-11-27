@@ -11,6 +11,15 @@ Reproducible macOS (Apple Silicon) workstation. One rule: **Nix decides what is 
 | mise / uv / rustup | runtimes: node, pnpm and friends / Python / Rust | each project |
 | Secrets | never in this repo: `~/.config/zsh/local.zsh` (mode 600) | the machine |
 
+## Using it yourself
+
+This is one person's workstation, published to read and to copy from. To run it on your own Mac, fork it first:
+
+- **Point it at your fork**: `repo=` in [`install.sh`](install.sh) and the URL in the bootstrap command below. `chezmoi update` runs `sudo darwin-rebuild` on whatever the repo's owner pushes: follow only a repo you own.
+- **Read `nix/darwin.nix` before the first switch**: `homebrew.onActivation.cleanup = "zap"` uninstalls every Homebrew formula and cask the file does not list, the apps' data too. List yours there, or set it to `"none"`. The same file changes macOS defaults and turns on the firewall and Touch ID for sudo.
+- **`home/dot_claude` is a personal Claude Code setup**: `settings.json` enables third-party plugin marketplaces, and `rules/` has Claude run a Telegram notifier after each task. Drop what you do not want.
+- **OmniWM's seed** (`create_settings.toml`) approves the `spaces` and `crew` widgets' programs under `/Users/matt`: under another username the approval does not match, so expect OmniWM's trust prompt.
+
 ## Bootstrap (fresh Mac)
 
 ```sh
@@ -66,3 +75,10 @@ hooks over OmniWM's IPC) and the Modest Dark palette (`shell/themes`). `shell/de
 styles from the gallery are OmniWM's, not this repo's.
 
 `chezmoi update` runs `sudo darwin-rebuild` on whatever it pulls, so push access to this repo means root on the machine: keep 2FA on the GitHub account.
+
+## License
+
+[MIT](LICENSE), except `home/dot_config/omniwm/shell`, which is
+[GPL-2.0-only](LICENSES/GPL-2.0-only.txt): `shell/mvtt` is a copy of
+[OmniWM](https://github.com/OmniNull/OmniWM)'s Default style (© OmniNull), and the widgets and
+theme beside it load into it. A file changed in `shell/mvtt` must say so, as the GPL asks.
