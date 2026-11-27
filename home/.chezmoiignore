@@ -1,5 +1,6 @@
-# Machine-local secrets: `chezmoi add` must never pick it up.
+# Machine-local settings and secrets: `chezmoi add` must never pick them up.
 .config/zsh/local.zsh
+.gitconfig-local
 
 # ~/.config/nvim becomes a link to the repo's NvChad config, but an existing
 # Neovim config (a directory, e.g. a LazyVim setup, or a link elsewhere) is never replaced.

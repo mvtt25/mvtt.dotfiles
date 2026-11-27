@@ -60,3 +60,8 @@
 [credential "https://gist.github.com"]
 	helper =
 	helper = !/run/current-system/sw/bin/gh auth git-credential
+
+# Machine-local git settings, never in this repo (it is public): aliases of your own,
+# anything else. Last, so it wins; without the file, nothing happens.
+[include]
+	path = ~/.gitconfig-local
