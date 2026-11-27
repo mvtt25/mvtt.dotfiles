@@ -220,6 +220,13 @@ name = "spaces"
 sha256 = "3bd5ba01fc8ff6b21d8d430c95587081968c30fc47e9351aee154656234ddf45"
 source = "/Users/matt/.config/omniwm/shell/widgets/spaces"
 
+[[shellPermissions.programs]]
+command = ["open.sh"]
+denied = false
+name = "crew"
+sha256 = "d81ef6a7d416e12dbd6dc1244a30994617b0d29411e780693b7a72aca72b6bb0"
+source = "/Users/matt/.config/omniwm/shell/widgets/crew"
+
 [statusBar]
 showAppNames = false
 showIcon = true

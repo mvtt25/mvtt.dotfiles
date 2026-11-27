@@ -1,8 +1,8 @@
 // The Agents tab's office, behind the desks (desk.metal) and the critters (avatar.metal),
-// on a grid of values.z points per pixel: a wall with a clock and a picture, a wooden
+// on a grid of values.z points per pixel: a wall with a window, a clock and a picture, a wooden
 // floor, a counter with the coffee machine on the left, the lounge on the right (lamp,
 // rug, three poufs, a swaying plant). Positions match component.luau.
-// values.x: minutes since midnight, for the clock's hands.
+// values.x: minutes since midnight, for the clock's hands and the sky in the window.
 // values.y: 1 while someone gets a coffee (the machine brews and steams).
 
 constant int TRIM = 29;    // the wainscot's top
@@ -16,6 +16,21 @@ float3 hex(uint c) {
 
 float noise(int a, int b) {
     return fract(sin(float(a) * 12.9898 + float(b) * 78.233) * 43758.5453);
+}
+
+// The sky through the window over the day: its colour at the top and at the horizon, by hour.
+constant float SKY_HOURS[8] = { 0.0, 5.5, 6.5, 8.0, 17.0, 18.5, 20.0, 24.0 };
+constant uint SKY_TOP[8] = { 0x0B1026, 0x0B1026, 0x3A4A7A, 0x4A90D9, 0x4A90D9, 0x5B4A8A, 0x141A3A, 0x0B1026 };
+constant uint SKY_LOW[8] = { 0x1B2340, 0x1B2340, 0xF2A36B, 0xA8D4F5, 0xA8D4F5, 0xF08A4B, 0x2A2850, 0x1B2340 };
+
+float3 sky(float hour, float v) {
+    for (int i = 0; i < 7; i++) {
+        if (hour <= SKY_HOURS[i + 1]) {
+            float k = (hour - SKY_HOURS[i]) / (SKY_HOURS[i + 1] - SKY_HOURS[i]);
+            return mix(mix(hex(SKY_TOP[i]), hex(SKY_TOP[i + 1]), k), mix(hex(SKY_LOW[i]), hex(SKY_LOW[i + 1]), k), v);
+        }
+    }
+    return mix(hex(SKY_TOP[0]), hex(SKY_LOW[0]), v);
 }
 
 // A pouf: 18 wide and 9 tall, rounder on top.
@@ -85,6 +100,43 @@ float4 shade(float2 uv, constant OmniShader& shader) {
             if (!frame && length(float2(px - 8, py - 6)) < 3.2) c = hex(0xD97757);
             if (!frame && py >= 7) c = hex(0x26303F);
         }
+    }
+
+    // A window over the left desk with the real sky: dawn, day with the sun crossing it and
+    // clouds drifting by, sunset, night with the moon and twinkling stars.
+    {
+        int wx = x - 44, wy = y - 5; // 39 × 20, white frame with a cross
+        if (wx >= 0 && wx <= 38 && wy >= 0 && wy <= 19) {
+            if (wx == 0 || wx == 38 || wy == 0 || wy == 19 || wx == 19 || wy == 9) {
+                c = hex(0xE4E4E0);
+            } else {
+                float hour = shader.values.x / 60.0;
+                float night = clamp(1.0 - smoothstep(5.5, 6.5, hour) + smoothstep(19.5, 20.5, hour), 0.0, 1.0);
+                float2 p = float2(x, y);
+                c = sky(hour, float(wy - 1) / 17.0);
+                if (noise(x, y) > 0.97) {
+                    c = mix(c, hex(0xFFFFFF), night * (0.55 + 0.35 * sin(t * 2.0 + noise(y, x) * 20.0)));
+                }
+                // The sun from 6:30 to 18:30, the moon from 19:00 to 6:00, each on an arc.
+                float day = (hour - 6.5) / 12.0;
+                float dark = fract((hour - 19.0) / 24.0 + 1.0) * 24.0 / 11.0;
+                if (day >= 0.0 && day <= 1.0) {
+                    float2 sun = float2(46.0 + day * 34.0, 23.0 - sin(day * 3.1415926) * 14.0);
+                    if (length(p - sun) < 2.3) c = mix(hex(0xFF9F43), hex(0xFFE28A), sin(day * 3.1415926));
+                } else if (dark >= 0.0 && dark <= 1.0) {
+                    float2 moon = float2(46.0 + dark * 34.0, 23.0 - sin(dark * 3.1415926) * 13.0);
+                    if (length(p - moon) < 2.6 && length(p - moon - float2(1.3, -0.9)) >= 2.0) c = hex(0xE9E7DD);
+                }
+                // Two clouds drifting right, wrapping around, by day.
+                for (int k = 0; k < 2; k++) {
+                    int cx = 38 + int(fract(t * (0.010 + 0.004 * float(k)) + 0.5 * float(k)) * 52.0);
+                    int cy = 8 + 6 * k;
+                    int dx = abs(x - cx);
+                    if ((y == cy && dx <= 2) || (y == cy + 1 && dx <= 4)) c = mix(c, hex(0xF4F6FA), 0.85 * (1.0 - night));
+                }
+            }
+        }
+        if (y == 25 && x >= 42 && x <= 84) c = hex(0xF5F5F3);
     }
 
     // The counter with the coffee machine (and a little succulent).

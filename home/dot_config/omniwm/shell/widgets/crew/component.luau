@@ -3,7 +3,8 @@
 -- pushed as props.agents (TUIOS's after-agent-state hook runs it at every change).
 -- Views: "troupe" (critters beside the notch), "help" (the card when an agent is
 -- asking for your help) and "office" (the Agents tab: a pixel office where each agent
--- has a desk, rests on a pouf in the lounge, or takes a coffee when it just finished).
+-- sits at a desk, rests on a pouf in the lounge, or takes a coffee when it just finished; a click shows
+-- it under the room, with Open to go to its pane). open.sh is the provider behind Open.
 
 local AVATAR = omniwm.asset("@self/avatar.metal")
 local ROOM = omniwm.asset("@self/room.metal")
@@ -22,7 +23,7 @@ local GROUND = 58 -- the floor line things stand on
 -- middle, of up to SEATS seats each (desk.metal draws one seat; more fit side by side).
 local DESKS_FROM, DESKS_TO, SEAT_W, DESK_H, SEATS = 36, 83, 22, 22, 2 -- DESKS_TO from the right (lamp - 4)
 local DESK_SLOTS = { 2, 1, 3 } -- in pane order, agents sit at the middle desk, then the left, then the right, in turn
-local CARD_W = 230 -- the hover card, left of the clock
+local DETAILS_H, OPEN_W = 40, 70 -- the strip under the room with the clicked agent, and its Open button
 local POUFS = 3
 local AT_DESK = { working = 0, needs_input = 1, errored = 2 } -- desk.metal's states; 3 is away
 local MOODS = { working = 0, needs_input = 1, errored = 2 }
@@ -157,7 +158,7 @@ local function help(ctx)
         ui.column(lines) }
 end
 
--- Where it is and how long for, for the hover card: "Claude in session-0 · working · 3m ago".
+-- Where it is and how long for, for the details strip: "Claude in session-0 · working · 3m ago".
 local function status(ctx, agent): string
     local parts = { harness(agent) .. (if text(agent.x) ~= "" then " in " .. agent.x else ""), label(agent) }
     local since = waited(ctx, agent)
@@ -167,11 +168,12 @@ local function status(ctx, agent): string
     return table.concat(parts, " · ")
 end
 
--- A click on a desk or a critter shows its agent in the card on the wall; another hides it.
+-- A click on a desk or a critter shows its agent in the strip under the room; another hides it.
 -- (Not on hover: a hover target inside the panel ends the island's own hover, which closes it.)
 local function pickable(element, agent)
     element.onClick = function(next)
         next.state.officePick = if next.state.officePick == agent.i then nil else agent.i
+        next.state.officeError = nil
     end
     return element
 end
@@ -192,7 +194,7 @@ end
 
 local function office(ctx)
     local width = ctx.view.w or 664
-    local height = ctx.view.h or 170
+    local height = (ctx.view.h or 170 + DETAILS_H) - DETAILS_H -- the room; the details strip goes under it
     local columns = math.floor(width / PIX)
     local agents = roster(ctx)
     -- Desks in pane order, so nobody changes desk when its state changes.
@@ -259,20 +261,40 @@ local function office(ctx)
             focus = agent
         end
     end
+    -- Under the room: the clicked agent (who, where, since when, what it does) and Open, which
+    -- shows its pane in TUIOS through the open.sh provider.
+    local strip = { key = "details", w = width, h = DETAILS_H, gap = 10, pad = 10 }
     if focus then
         local where = if AT_DESK[focus.s] ~= nil then "at the desk"
             elseif focus == coffee then "on a coffee break" else "resting in the lounge"
-        local card = { key = "info", align = "topLeading", dx = 10, dy = 8, gap = 2, pad = 8, radius = 10,
-            center = false, fill = "#000000B8", appear = { opacity = 0, animate = 0.12 },
-            ui.text{ text = name(focus), size = 12, weight = "semibold", color = TEXT, maxWidth = CARD_W },
-            ui.text{ text = status(ctx, focus) .. " · " .. where, size = 10, color = DIM, maxWidth = CARD_W } }
-        if text(focus.m) ~= "" then
-            card[#card + 1] = ui.text{ text = focus.m, size = 10, color = FAINT, maxWidth = CARD_W, lines = 2 }
+        local textWidth = width - 2 * 10 - 10 - OPEN_W
+        local nameWidth = math.min(textWidth / 2, (ctx.format.measure(name(focus), { size = 12, weight = "semibold" })))
+        local failure = ctx.state.officeError
+        local note = if failure then failure else text(focus.m)
+        local lines = { gap = 2, center = false, w = textWidth,
+            ui.row{ gap = 6,
+                ui.text{ text = name(focus), size = 12, weight = "semibold", color = TEXT, maxWidth = nameWidth },
+                ui.text{ text = status(ctx, focus) .. " · " .. where, size = 10, color = DIM,
+                    maxWidth = textWidth - nameWidth - 6 } } }
+        if note ~= "" then
+            lines[#lines + 1] = ui.text{ text = note, size = 10, color = if failure then RED else FAINT,
+                maxWidth = textWidth }
         end
-        scene[#scene + 1] = ui.column(card)
+        strip[#strip + 1] = ui.column(lines)
+        strip[#strip + 1] = ui.box{ grow = 1 }
+        strip[#strip + 1] = ui.row{ key = "open", w = OPEN_W, h = 24, gap = 4, radius = 12, fill = "#FFFFFF1A",
+            hover = "#FFFFFF33", pressScale = 0.95, help = "Show this pane in TUIOS",
+            onClick = function(next)
+                local _, err = omniwm.provider.send("open", { session = text(focus.x), pane = focus.i }, nil,
+                    function(result)
+                        next.state.officeError = if result.ok then nil else tostring(result.error)
+                    end)
+                next.state.officeError = err
+            end,
+            ui.symbol{ name = "arrow.up.forward.app", size = 10, color = TEXT },
+            ui.text{ text = "Open", size = 11, weight = "semibold", color = TEXT } }
     elseif #agents > 0 then
-        scene[#scene + 1] = ui.text{ key = "hint", text = "Click a Claude for details", size = 10, color = FAINT,
-            align = "topLeading", dx = 12, dy = 10 }
+        strip[#strip + 1] = ui.text{ key = "hint", text = "Click a Claude for details", size = 10, color = FAINT }
     end
     if #agents == 0 then
         scene[#scene + 1] = ui.text{ key = "empty", text = "No agents in TUIOS", size = 12, weight = "medium",
@@ -281,7 +303,7 @@ local function office(ctx)
         scene[#scene + 1] = ui.text{ key = "more", text = "+" .. tostring(#agents - shown) .. " more", size = 10,
             weight = "semibold", color = DIM, align = "topTrailing", dx = -10, dy = 8 }
     end
-    return ui.stack(scene)
+    return ui.column{ key = "office-view", w = width, h = height + DETAILS_H, gap = 0, ui.stack(scene), ui.row(strip) }
 end
 
 return {
